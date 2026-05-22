@@ -1,0 +1,7 @@
+interface:
+  display_name: "Apple Foundation Models"
+  short_description: "On-device Apple Intelligence app patterns"
+  default_prompt: "Use $apple-foundation-models-skill to add or review a Foundation Models feature in this SwiftUI app."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Like Human"
+  short_description: "Natural, human-sounding writing guidance"
+  default_prompt: "Use $write-like-human to draft or revise this text so it sounds natural, specific, and human."

@@ -1,0 +1,229 @@
+//
+//  EnumDynamicSchemaView.swift
+//  FoundationLab
+//
+//  Created by Rudrank Riyam on 27/10/2025.
+//
+
+import SwiftUI
+import FoundationModels
+
+struct EnumDynamicSchemaView: View {
+    @State private var executor = ExampleExecutor()
+    @State private var customerInput = "The customer seems very happy with our service and left a glowing review"
+    @State private var taskInput = "This bug fix is urgent and needs to be completed today"
+    @State private var weatherInput = "It's a beautiful sunny day with clear skies"
+    @State private var selectedExample = 0
+    @State private var customChoices = "excellent, good, average, poor"
+    @State private var useCustomChoices = false
+
+    private let examples = ["Sentiment Analysis", "Task Priority", "Weather Condition"]
+
+    var body: some View {
+        ExampleViewBase(
+            title: "Enum Schemas",
+            description: "Create schemas with predefined string choices using anyOf",
+            defaultPrompt: customerInput,
+            currentPrompt: bindingForSelectedExample,
+            isRunning: executor.isRunning,
+            errorMessage: executor.errorMessage,
+            codeExample: exampleCode,
+            onRun: { Task { await runExample() } },
+            onReset: { selectedExample = 0; useCustomChoices = false },
+            content: {
+                VStack(alignment: .leading, spacing: Spacing.medium) {
+                    // Example selector
+                    Picker("Example", selection: $selectedExample) {
+                        ForEach(0..<examples.count, id: \.self) { index in
+                            Text(examples[index]).tag(index)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    // Current choices display
+                    VStack(alignment: .leading, spacing: Spacing.small) {
+                        Text("Available Choices")
+                            .font(.headline)
+
+                        Text(currentChoices.joined(separator: ", "))
+                            .font(.system(.body, design: .monospaced))
+                            .padding(8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.blue.opacity(0.1))
+                            .cornerRadius(8)
+                    }
+
+                    // Custom choices option
+                    VStack(alignment: .leading, spacing: Spacing.small) {
+                        Toggle("Use Custom Choices", isOn: $useCustomChoices)
+                            .font(.caption)
+
+                        if useCustomChoices {
+                            TextField("Comma-separated choices", text: $customChoices)
+                                .textFieldStyle(.roundedBorder)
+                                .font(.caption)
+                        }
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(8)
+
+                    HStack {
+                        Button("Classify") {
+                            Task {
+                                await runExample()
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(executor.isRunning || currentInput.isEmpty)
+
+                        if executor.isRunning {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        }
+                    }
+
+                    // Results section
+                    if !executor.results.isEmpty {
+                        VStack(alignment: .leading, spacing: Spacing.small) {
+                            Text("Generated Data")
+                                .font(.headline)
+
+                            ScrollView {
+                                Text(executor.results)
+                                    .font(.system(.caption, design: .monospaced))
+                                    .padding()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(Color.gray.opacity(0.1))
+                                    .cornerRadius(8)
+                            }
+                            .frame(maxHeight: 250)
+                        }
+                    }
+                }
+                .padding()
+            }
+        )
+    }
+
+    private var bindingForSelectedExample: Binding<String> {
+        switch selectedExample {
+        case 0: return $customerInput
+        case 1: return $taskInput
+        default: return $weatherInput
+        }
+    }
+
+    private var currentInput: String {
+        switch selectedExample {
+        case 0: return customerInput
+        case 1: return taskInput
+        default: return weatherInput
+        }
+    }
+
+    private var currentChoices: [String] {
+        if useCustomChoices {
+            return customChoices.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        }
+
+        switch selectedExample {
+        case 0:
+            return ["positive", "negative", "neutral", "mixed"]
+        case 1:
+            return ["urgent", "high", "medium", "low"]
+        default:
+            return ["sunny", "cloudy", "rainy", "snowy", "foggy", "stormy"]
+        }
+    }
+
+    private func runExample() async {
+        await executor.execute {
+            let schema = try createSchema(for: selectedExample)
+            let session = LanguageModelSession()
+
+            let fieldName = selectedExample == 0 ? "sentiment" : selectedExample == 1 ? "priority" : "condition"
+            let prompt = """
+            Analyze the following text and classify it into one of the available categories.
+
+            Text: \(currentInput)
+            """
+
+            let response = try await session.respond(
+                to: Prompt(prompt),
+                schema: schema,
+                options: .init(temperature: 0.1)
+            )
+
+            let data = extractClassificationData(from: response.content, fieldName: fieldName)
+            let classification = data.classification
+            let confidence = data.confidence
+            let reasoning = data.reasoning
+
+            return """
+            📝 Input:
+            \(currentInput)
+
+            🏷️ Classification: \(classification)
+
+            📊 Available Choices:
+            \(currentChoices.map { "• \($0)" }.joined(separator: "\n"))
+
+            \(confidence != nil ? "🎯 Confidence: \(String(format: "%.1f%%", (confidence ?? 0) * 100))" : "")
+
+            \(reasoning != nil ? "💭 Reasoning: \(reasoning ?? "")" : "")
+
+            ✅ Valid Choice: \(currentChoices.contains(classification) ? "Yes" : "No (Invalid!)")
+            """
+        }
+    }
+
+    private func createSchema(for index: Int) throws -> GenerationSchema {
+        let choices = currentChoices
+        let fieldName = index == 0 ? "sentiment" : index == 1 ? "priority" : "condition"
+        let description = index == 0 ? "The sentiment of the text" : index == 1 ? "The priority level" : "The weather condition"
+
+        // Create enum schema
+        let enumSchema = DynamicGenerationSchema(
+            name: "\(fieldName.capitalized)Type",
+            description: description,
+            anyOf: choices
+        )
+
+        // Create properties for the result
+        let classificationProperty = DynamicGenerationSchema.Property(
+            name: fieldName,
+            description: description,
+            schema: enumSchema
+        )
+
+        let confidenceProperty = DynamicGenerationSchema.Property(
+            name: "confidence",
+            description: "Confidence score between 0 and 1",
+            schema: .init(type: Float.self),
+            isOptional: true
+        )
+
+        let reasoningProperty = DynamicGenerationSchema.Property(
+            name: "reasoning",
+            description: "Brief explanation for the classification",
+            schema: .init(type: String.self),
+            isOptional: true
+        )
+
+        // Create the main schema
+        let resultSchema = DynamicGenerationSchema(
+            name: "ClassificationResult",
+            description: "Classification result with optional confidence and reasoning",
+            properties: [classificationProperty, confidenceProperty, reasoningProperty]
+        )
+
+        return try GenerationSchema(root: resultSchema, dependencies: [enumSchema])
+    }
+}
+
+#Preview {
+    NavigationStack {
+        EnumDynamicSchemaView()
+    }
+}

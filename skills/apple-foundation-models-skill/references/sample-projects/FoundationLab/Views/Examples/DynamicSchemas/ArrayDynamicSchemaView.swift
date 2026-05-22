@@ -1,0 +1,191 @@
+//
+//  ArrayDynamicSchemaView.swift
+//  FoundationLab
+//
+//  Created by Rudrank Riyam on 27/10/2025.
+//
+
+import SwiftUI
+import FoundationModels
+
+struct ArrayDynamicSchemaView: View {
+    @State private var executor = ExampleExecutor()
+    @State private var todoInput = """
+        Today I need to: buy groceries, finish the report, call mom, \
+        exercise for 30 minutes, and prepare dinner
+        """
+    @State private var ingredientsInput = "For this recipe you'll need eggs, flour, milk, butter, and a pinch of salt"
+    @State private var tagsInput = """
+        This article covers machine learning, artificial intelligence, \
+        deep learning, neural networks, computer vision, natural language \
+        processing, and reinforcement learning
+        """
+    @State private var selectedExample = 0
+    @State private var minItems = 2
+    @State private var maxItems = 5
+
+    private let examples = ["Todo List", "Recipe Ingredients", "Article Tags"]
+
+    var body: some View {
+        ExampleViewBase(
+            title: "Array Schemas",
+            description: "Create array schemas with minimum and maximum element constraints",
+            defaultPrompt: todoInput,
+            currentPrompt: bindingForSelectedExample,
+            isRunning: executor.isRunning,
+            errorMessage: executor.errorMessage,
+            codeExample: exampleCode,
+            onRun: { Task { await runExample() } },
+            onReset: { selectedExample = 0; minItems = 2; maxItems = 5 },
+            content: {
+                VStack(alignment: .leading, spacing: Spacing.medium) {
+                // Example selector
+                Picker("Example", selection: $selectedExample) {
+                    ForEach(0..<examples.count, id: \.self) { index in
+                        Text(examples[index]).tag(index)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                // Constraints controls
+                VStack(alignment: .leading, spacing: Spacing.small) {
+                    Text("Array Constraints")
+                        .font(.headline)
+
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("Min Items: \(minItems)")
+                                .font(.caption)
+                            Stepper("", value: $minItems, in: 0...10)
+                                .labelsHidden()
+                        }
+
+                        Spacer()
+
+                        VStack(alignment: .leading) {
+                            Text("Max Items: \(maxItems)")
+                                .font(.caption)
+                            Stepper("", value: $maxItems, in: minItems...20)
+                                .labelsHidden()
+                        }
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(8)
+                }
+
+                // Schema info
+                VStack(alignment: .leading, spacing: Spacing.small) {
+                    Text("Schema Info")
+                        .font(.headline)
+
+                    Text(schemaInfo(for: selectedExample, minItems: minItems, maxItems: maxItems))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.1))
+                        .cornerRadius(8)
+                }
+
+                HStack {
+                    Button("Extract Array") {
+                        Task {
+                            await runExample()
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(executor.isRunning || currentInput.isEmpty)
+
+                    if executor.isRunning {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                    }
+                }
+
+                // Results section
+                if !executor.results.isEmpty {
+                    VStack(alignment: .leading, spacing: Spacing.small) {
+                        Text("Generated Data")
+                            .font(.headline)
+
+                        ScrollView {
+                            Text(executor.results)
+                                .font(.system(.caption, design: .monospaced))
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(8)
+                        }
+                        .frame(maxHeight: 250)
+                    }
+                }
+            }
+            .padding()
+        }
+        )
+    }
+
+    private var bindingForSelectedExample: Binding<String> {
+        switch selectedExample {
+        case 0: return $todoInput
+        case 1: return $ingredientsInput
+        default: return $tagsInput
+        }
+    }
+
+    private var currentInput: String {
+        switch selectedExample {
+        case 0: return todoInput
+        case 1: return ingredientsInput
+        default: return tagsInput
+        }
+    }
+
+    private func runExample() async {
+        await executor.execute {
+            let schema = try createSchema(for: selectedExample, minItems: minItems, maxItems: maxItems)
+            let session = LanguageModelSession()
+
+            let prompt = """
+            Extract the items from this text. Return between \(minItems) and \(maxItems) items.
+
+            Text: \(currentInput)
+            """
+
+            let response = try await session.respond(
+                to: Prompt(prompt),
+                schema: schema,
+                options: .init(temperature: 0.1)
+            )
+
+            let items: [GeneratedContent]
+            switch response.content.kind {
+            case .array(let elements):
+                items = elements
+            default:
+                items = []
+            }
+
+            return """
+            📝 Input:
+            \(currentInput)
+
+            Extracted Items (Count: \(items.count)):
+            \(formatItems(items))
+
+            Constraints:
+            - Minimum: \(minItems) items
+            - Maximum: \(maxItems) items
+            - Actual: \(items.count) items
+            - Valid: \(items.count >= minItems && items.count <= maxItems ? "Yes" : "No")
+            """
+        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        ArrayDynamicSchemaView()
+    }
+}
