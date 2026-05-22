@@ -16,6 +16,7 @@ Prefer clear, specific, grounded writing over ornate, inspirational, or overexpl
 1. Put the writer before the tool.
    - Preserve the user's ideas, experience, claims, uncertainty, and vocabulary.
    - If the user supplies a draft, treat it as the source of truth and revise from it.
+   - When editing an existing document, preserve its substantive meaning, facts, scope, and decisions; do not make the revised version materially disagree with the source unless the user explicitly asks for that.
    - If the user supplies voice samples, infer a compact style guide before rewriting.
 
 2. Make every sentence earn its place.
