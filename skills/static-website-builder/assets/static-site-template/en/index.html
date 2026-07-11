@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Static Site Home</title>
+  <script src="../site-init.js"></script>
+  <link rel="stylesheet" href="../site.css">
+</head>
+<body data-page="index" data-locale="en">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <div data-site-sidebar></div>
+
+  <div class="page-wrapper">
+    <div data-site-topbar></div>
+
+    <main id="content" class="content">
+      <header class="hero">
+        <p class="eyebrow">Static site</p>
+        <h1>Information site</h1>
+        <p class="lead">
+          Use this homepage as the entry point for a text-first static site.
+          Update the page list in <code>site-components.js</code> to populate navigation,
+          the file index, search index, and previous/next links.
+        </p>
+      </header>
+
+      <section id="site-files">
+        <h2>Site Files</h2>
+        <p>These links show site pages and optional Markdown content files.</p>
+        <div data-site-index-files></div>
+      </section>
+
+      <section id="reading-order">
+        <h2>Reading Order</h2>
+        <p>Use the reading order for chapters, tutorial steps, or documentation sections.</p>
+        <div data-site-reading-order></div>
+      </section>
+
+      <div data-site-pager></div>
+    </main>
+
+    <div data-site-footer></div>
+  </div>
+  <script src="../vendor/prismjs/prism-nearloop.min.js"></script>
+  <script src="../site-components.js"></script>
+</body>
+</html>

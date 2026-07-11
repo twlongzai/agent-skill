@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>靜態網站首頁</title>
+  <script src="../site-init.js"></script>
+  <link rel="stylesheet" href="../site.css">
+</head>
+<body data-page="index" data-locale="zh-TW">
+  <a class="skip-link" href="#content">跳到內容</a>
+  <div data-site-sidebar></div>
+
+  <div class="page-wrapper">
+    <div data-site-topbar></div>
+
+    <main id="content" class="content">
+      <header class="hero">
+        <p class="eyebrow">靜態網站</p>
+        <h1>資訊網站</h1>
+        <p class="lead">
+          使用這個首頁作為 text-first 靜態網站的入口。更新 <code>site-components.js</code>
+          裡的頁面清單，即可同步導覽、檔案索引、搜尋索引與上一頁/下一頁連結。
+        </p>
+      </header>
+
+      <section id="site-files">
+        <h2>網站檔案</h2>
+        <p>這些連結會顯示網站頁面與選用的 Markdown 內容檔。</p>
+        <div data-site-index-files></div>
+      </section>
+
+      <section id="reading-order">
+        <h2>閱讀順序</h2>
+        <p>使用閱讀順序安排章節、教學步驟或文件頁。</p>
+        <div data-site-reading-order></div>
+      </section>
+
+      <div data-site-pager></div>
+    </main>
+
+    <div data-site-footer></div>
+  </div>
+  <script src="../vendor/prismjs/prism-nearloop.min.js"></script>
+  <script src="../site-components.js"></script>
+</body>
+</html>

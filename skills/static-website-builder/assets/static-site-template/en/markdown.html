@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Markdown Page</title>
+  <script src="../site-init.js"></script>
+  <link rel="stylesheet" href="../site.css">
+</head>
+<body data-page="markdown" data-locale="en">
+  <a class="skip-link" href="#content">Skip to content</a>
+  <div data-site-sidebar></div>
+
+  <div class="page-wrapper">
+    <div data-site-topbar></div>
+
+    <main id="content" class="content">
+      <article class="markdown-page" data-markdown-page data-markdown-src="article.md">
+        <script type="text/markdown" data-markdown-source>
+# Markdown Page
+
+This page renders Markdown inside the shared static-site shell. Use it when prose is easier to maintain in Markdown than hand-authored HTML.
+
+## Markdown Overview
+
+- Keep the page metadata in `site-components.js`.
+- Keep the reader-facing link as `markdown.html`.
+- Keep the raw Markdown file only when readers or editors need source access.
+
+> Markdown output is sanitized before it is inserted into the page.
+
+## Code and Tables
+
+```bash
+python -m http.server 8000
+```
+
+| Source | Reader-facing page |
+| --- | --- |
+| `article.md` | `markdown.html` |
+| inline fallback | `file://` preview |
+        </script>
+      </article>
+
+      <div data-site-pager></div>
+    </main>
+
+    <div data-site-footer></div>
+  </div>
+  <script src="../vendor/marked.umd.js"></script>
+  <script src="../vendor/purify.min.js"></script>
+  <script src="../vendor/prismjs/prism-nearloop.min.js"></script>
+  <script src="../site-components.js"></script>
+</body>
+</html>

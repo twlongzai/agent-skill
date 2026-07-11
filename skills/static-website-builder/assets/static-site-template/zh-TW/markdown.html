@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Markdown 頁面</title>
+  <script src="../site-init.js"></script>
+  <link rel="stylesheet" href="../site.css">
+</head>
+<body data-page="markdown" data-locale="zh-TW">
+  <a class="skip-link" href="#content">跳到內容</a>
+  <div data-site-sidebar></div>
+
+  <div class="page-wrapper">
+    <div data-site-topbar></div>
+
+    <main id="content" class="content">
+      <article class="markdown-page" data-markdown-page data-markdown-src="article.md">
+        <script type="text/markdown" data-markdown-source>
+# Markdown 頁面
+
+這個頁面會在共享靜態網站 shell 裡渲染 Markdown。當 prose 用 Markdown 比手寫 HTML 更容易維護時，可以使用這個頁面型態。
+
+## Markdown 概覽
+
+- 在 `site-components.js` 維護頁面 metadata。
+- 讀者看到的連結仍使用 `markdown.html`。
+- 只有在讀者或編輯者需要原始內容時，才把 raw Markdown file 列出來。
+
+> Markdown output 會先經過 sanitizer，再插入頁面。
+
+## 程式碼與表格
+
+```bash
+python -m http.server 8000
+```
+
+| Source | 讀者頁面 |
+| --- | --- |
+| `article.md` | `markdown.html` |
+| inline fallback | `file://` preview |
+        </script>
+      </article>
+
+      <div data-site-pager></div>
+    </main>
+
+    <div data-site-footer></div>
+  </div>
+  <script src="../vendor/marked.umd.js"></script>
+  <script src="../vendor/purify.min.js"></script>
+  <script src="../vendor/prismjs/prism-nearloop.min.js"></script>
+  <script src="../site-components.js"></script>
+</body>
+</html>
