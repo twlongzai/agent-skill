@@ -1,4 +1,4 @@
 interface:
   display_name: "Static Website Builder"
-  short_description: "Build text-first static information sites with HTML or Markdown-authored pages."
+  short_description: "Text-first static sites with HTML and Markdown pages"
   default_prompt: "Use $static-website-builder to create or improve a text-first static website with shared layout, navigation, responsive styling, and optional Markdown-rendered pages."

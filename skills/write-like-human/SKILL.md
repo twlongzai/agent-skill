@@ -1,6 +1,6 @@
 ---
 name: write-like-human
-description: Use when an AI agent needs to draft, rewrite, polish, summarize, adapt tone, or review prose that should sound natural, specific, credible, and less like generic AI output across essays, articles, emails, resumes, cover letters, reports, social posts, and professional writing.
+description: "Draft, rewrite, polish, summarize, adapt, or review natural, specific, credible prose. Use for essays, articles, email, resumes, cover letters, reports, social posts, and professional writing."
 ---
 
 # Write Like Human

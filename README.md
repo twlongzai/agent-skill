@@ -1,8 +1,21 @@
 # Agent Skills
 
-This repository collects the agent skills we use to make Codex more useful in day-to-day work. Each skill lives under `skills/` and includes a `SKILL.md` file, with supporting references, reusable assets, or agent configuration when the skill needs them.
+This repository collects reusable skills for Codex, Claude Code and Claude Cowork, Gemini CLI and Google Antigravity, and GitHub Copilot. Each skill follows the open Agent Skills format: a folder under `skills/` with a required `SKILL.md` and optional references, assets, scripts, or agent-specific metadata.
 
-The goal is practical: keep reusable instructions close to the work they support, make their source clear, and make it easy to improve a skill when we find better patterns.
+The canonical copy of every skill lives under `skills/`. Install or link those folders into the discovery directory used by your agent; do not maintain separate edited copies for each product.
+
+## Installation and Usage
+
+Choose the guide for your agent. Each guide includes project and personal installation, configuration, verification, invocation examples, updates, and removal.
+
+| Agent | Guide |
+| --- | --- |
+| OpenAI Codex | [Codex installation and usage](docs/CODEX.md) |
+| Claude Code or Claude Cowork | [Claude installation and usage](docs/CLAUDE.md) |
+| Gemini CLI or Google Antigravity | [Gemini and Google AI installation and usage](docs/GEMINI.md) |
+| GitHub Copilot | [Copilot installation and usage](docs/COPILOT.md) |
+
+The shared `name` and `description` frontmatter is intentionally portable. Files under a skill's `agents/` directory are optional product metadata; an agent that does not recognize one of those files can ignore it and still use the skill through `SKILL.md`.
 
 ## Skills
 

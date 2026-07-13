@@ -1,6 +1,6 @@
 ---
 name: apple-foundation-models-skill
-description: Build, review, or refactor Apple Intelligence features with the Foundation Models framework in SwiftUI apps. Use when working with SystemLanguageModel availability, LanguageModelSession, Prompt and Instructions design, streaming, transcripts, @Generable and @Guide structured output, tool calling, prewarming, or prompt updates for new model versions.
+description: "Build or review Apple Foundation Models features in SwiftUI. Use for availability, LanguageModelSession, prompts, streaming, structured output, tool calling, prewarming, and model adaptation."
 ---
 
 # Apple Foundation Models Skill

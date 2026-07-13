@@ -1,6 +1,6 @@
 ---
 name: static-website-builder
-description: Use when building or improving text-first static websites with plain HTML, CSS, JavaScript, and optional Markdown-authored pages, including multilingual documentation, tutorials, knowledge bases, serialized fiction, project documentation, or other prose-first static sites where graphics are secondary.
+description: "Build or improve text-first static sites with HTML, CSS, JavaScript, and optional Markdown. Use for multilingual docs, tutorials, knowledge bases, serialized writing, and prose-first sites."
 ---
 
 # Static Website Builder
@@ -200,7 +200,7 @@ Use the fuller checklist in `references/layout-principles.md` when designing or 
 
 ## Built-In Design Rules
 
-These rules are duplicated here so this skill can stand on its own without loading `$web-design-engineer`:
+These rules are duplicated here so this skill can stand on its own without activating the `web-design-engineer` skill:
 
 - Gather local design context first. Read existing HTML, CSS, screenshots, and adjacent pages before inventing new styling.
 - Match the local visual vocabulary: color ratio, type scale, spacing, border radius, hover/focus states, and density.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SwiftUI Expert"
+  short_description: "Modern, maintainable SwiftUI engineering guidance"
+  default_prompt: "Use $swiftui-expert-skill to build or review this SwiftUI feature with modern architecture and APIs."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web Design Engineer"
+  short_description: "Polished visual front-end design and implementation"
+  default_prompt: "Use $web-design-engineer to build or improve this visual front-end experience."

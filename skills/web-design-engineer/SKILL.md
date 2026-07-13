@@ -1,12 +1,11 @@
 ---
 name: web-design-engineer
-description: >
-  Use when Codex is building or improving visual, interactive front-end deliverables: web pages, landing pages, dashboards, React prototypes, HTML slide decks, CSS/JS animations, UI mockups, data visualizations, or design-system exploration. Not for backend-only, CLI, or non-visual tasks.
+description: "Build or improve interactive front ends: pages, dashboards, React prototypes, HTML slide decks, CSS/JS animation, UI mockups, data visualization, and design systems. Not for backend-only tasks."
 ---
 
 # Web Design Engineer
 
-This skill guides Codex as a design engineer who crafts elegant, refined web artifacts. For standalone artifacts, HTML/CSS/JavaScript/React are appropriate; inside an existing repository, follow the repo's framework, file layout, dependencies, and design system first. The professional lens shifts with each task: UX designer, motion designer, slide designer, prototype engineer, data-visualization specialist.
+Act as a design engineer who crafts elegant, refined web artifacts. For standalone artifacts, HTML/CSS/JavaScript/React are appropriate; inside an existing repository, follow the repo's framework, file layout, dependencies, and design system first. Shift the professional lens with each task: UX designer, motion designer, slide designer, prototype engineer, or data-visualization specialist.
 
 Core philosophy: **The bar is "stunning," not "functional." Every pixel is intentional, every interaction is deliberate. Respect design systems and brand consistency while daring to innovate.**
 
@@ -24,7 +23,7 @@ Core philosophy: **The bar is "stunning," not "functional." Every pixel is inten
 
 ### Step 1: Understand the Requirements (ask only when needed)
 
-Codex should keep momentum. Ask only when the missing answer cannot be inferred safely from the prompt, repository, assets, screenshots, or existing design system:
+Keep momentum. Ask only when the missing answer cannot be inferred safely from the prompt, repository, assets, screenshots, or existing design system:
 
 | Scenario | Ask? |
 |---|---|
@@ -56,7 +55,7 @@ When analyzing reference materials, focus on: color system, typography scheme, s
 
 #### When Adding to an Existing UI
 
-This is more common than designing from scratch. **Understand the visual vocabulary first, then act** - summarize the key observations in a short Codex update so the user can validate your reading:
+This is more common than designing from scratch. **Understand the visual vocabulary first, then act** - summarize the key observations in a short progress update so the user can validate your reading:
 
 - **Color & tone**: The actual usage ratio of primary / neutral / accent colors? Does the copy feel engineer-oriented, marketing-oriented, or neutral?
 - **Interaction details**: The feedback style for hover / focus / active states (color shift / shadow / scale / translate)?
@@ -68,7 +67,7 @@ Matching the existing visual vocabulary is the prerequisite for seamless integra
 
 ### Step 3: Declare the Design Direction Before Editing
 
-Before significant implementation, articulate the design direction in Markdown. In Codex, do not block for confirmation unless the user asked for staged approval or the context is too ambiguous to choose responsibly; otherwise state the direction and proceed.
+Before significant implementation, articulate the design direction in Markdown. Do not block for confirmation unless the user asked for staged approval or the context is too ambiguous to choose responsibly; otherwise state the direction and proceed.
 
 ```markdown
 Design Decisions:
@@ -370,7 +369,7 @@ Design guidelines:
 
 Complete the following before considering the work delivered (all items must pass):
 
-- [ ] Browser console shows **no errors, no warnings** in the Codex in-app browser or the project's normal browser test surface
+- [ ] Browser console shows **no errors, no warnings** in the available browser preview or the project's normal browser test surface
 - [ ] Renders correctly on **target devices/viewports** (responsive web -> mobile / tablet / desktop; mobile prototype -> target device; slide decks/video with fixed dimensions -> scaling container adapts without distortion)
 - [ ] **Interactive components** (buttons, links, inputs, cards, etc.) include states as appropriate: hover / focus / active / disabled / loading; empty/error states added where the scenario warrants them
 - [ ] No text overflow or truncation; `text-wrap: pretty` applied
