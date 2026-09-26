@@ -87,7 +87,7 @@ Codex 可以依工作內容自動觸發 skill，也可以用 `$skill-name` 明�
 
 | Skill | 明確指定範例 |
 | --- | --- |
-| `apple-foundation-models-skill` | `使用 $apple-foundation-models-skill 檢查這個 LanguageModelSession 的生命週期。` |
+| `apple-foundation-models-skill-legacy` | `使用 $apple-foundation-models-skill-legacy 檢查這個 iOS 26 / macOS 26 的 LanguageModelSession 生命週期。` |
 | `static-website-builder` | `使用 $static-website-builder 將這些 Markdown 做成雙語靜態文件網站。` |
 | `swiftui-expert-skill` | `使用 $swiftui-expert-skill review 這個 SwiftUI feature 的 state 與 navigation。` |
 | `web-design-engineer` | `使用 $web-design-engineer 改善這個 dashboard 的視覺與互動。` |

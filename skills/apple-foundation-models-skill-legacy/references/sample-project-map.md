@@ -1,5 +1,7 @@
 # Sample Project Map
 
+**Legacy scope:** This sample collection is only for iOS 26 / macOS 26 or earlier, subject to each API's minimum OS availability. It does not cover new iOS 27 / macOS 27 features; see [What's new in the Foundation Models framework — WWDC26 session 241](https://developer.apple.com/videos/play/wwdc2026/241/).
+
 Open these files first when you need concrete implementation patterns.
 All paths below are bundled inside this skill under `references/sample-projects/`. These are selected source excerpts for adaptation in a host project. The bundle does not include complete app projects or dependency manifests. Read the source and host notes before copying or running a sample; importing an excerpt alone is not a supported build target.
 

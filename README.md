@@ -25,16 +25,18 @@ The shared `name` and `description` frontmatter is intentionally portable. Files
 
 | Skill | Purpose |
 | --- | --- |
-| `skills/apple-foundation-models-skill` | Helps build, review, and refactor Apple Foundation Models features in SwiftUI apps. |
+| `skills/apple-foundation-models-skill-legacy` | Helps build, review, and refactor legacy Apple Foundation Models features in SwiftUI apps for iOS 26 / macOS 26 or earlier only. |
 | `skills/static-website-builder` | Helps build and improve text-first static sites with plain HTML, CSS, and JavaScript, including multilingual navigation, local Markdown rendering, and a reusable template. |
 | `skills/swiftui-expert-skill` | Guides SwiftUI implementation, review, architecture, state management, performance, and modern API usage. |
 | `skills/web-design-engineer` | Guides visual and interactive front-end work, including pages, prototypes, dashboards, slide decks, and UI mockups. |
 | `skills/write-like-human` | Guides drafting, rewriting, polishing, summarizing, tone adaptation, and prose review so writing stays natural, specific, and credible. |
 
+The Apple Foundation Models skill is limited to iOS 26 / macOS 26 or earlier. This is a limit on the skill's guidance; each API still has its own minimum OS requirement. For new features in iOS 27 / macOS 27, refer to [What's new in the Foundation Models framework — WWDC26 session 241](https://developer.apple.com/videos/play/wwdc2026/241/).
+
 Choose by the requested work:
 
 - Use `static-website-builder` for text-first static reading sites and their navigation, local Markdown, or language structure; use `web-design-engineer` for visual and interactive web design. Existing project tooling and scope take precedence over a starter template.
-- Use `apple-foundation-models-skill` for the Foundation Models integration; add `swiftui-expert-skill` when the work also needs SwiftUI-specific state, layout, navigation, or rendering guidance.
+- Use `apple-foundation-models-skill-legacy` for Foundation Models integration targeting iOS 26 / macOS 26 or earlier; add `swiftui-expert-skill` when the work also needs SwiftUI-specific state, layout, navigation, or rendering guidance.
 - Use `write-like-human` for an actual prose drafting or editing task. A small correction may leave already suitable wording unchanged.
 
 Combine skills only when their distinct capabilities help the request. Shared constraints may intentionally appear in independently installable skills; do not remove them solely because another skill contains similar wording.
@@ -43,7 +45,7 @@ Combine skills only when their distinct capabilities help the request. Shared co
 
 Completion depends on the requested outcome and the affected behavior. Run relevant available checks, fix failures caused by the change, and report checks that could not run. Static inspection is not a browser pass, a snippet parse is not a full app build, and a model response is not proof that a tool action succeeded.
 
-The static-site assets are a reusable template with local dependencies. The Apple examples include host-dependent excerpts, not complete buildable applications; consult their [sample map](skills/apple-foundation-models-skill/references/sample-project-map.md) for dependencies, provenance, and limits. Browser/OS compatibility and device behavior must be checked in the consuming project.
+The static-site assets are a reusable template with local dependencies. The Apple examples include host-dependent excerpts, not complete buildable applications; consult their [sample map](skills/apple-foundation-models-skill-legacy/references/sample-project-map.md) for dependencies, provenance, and limits. Browser/OS compatibility and device behavior must be checked in the consuming project.
 
 Maintenance checks do not establish faster execution or better output from Astra, Sol, or Luna. Compare representative tasks separately on each model before claiming a model-specific improvement. Preserve a recoverable copy before replacing or removing existing skill files.
 
@@ -66,13 +68,13 @@ Some skills started from public work and were adapted for this repository:
 | --- | --- |
 | `skills/web-design-engineer` | Copied from the skill in [ConardLi/garden-skills](https://github.com/ConardLi/garden-skills). |
 | `skills/swiftui-expert-skill` | Based on [AvdLee/SwiftUI-Agent-Skill](https://github.com/AvdLee/SwiftUI-Agent-Skill), with added references such as scalable architecture guidance. |
-| Apple Foundation Models example excerpts | See the [sample provenance and dependency notes](skills/apple-foundation-models-skill/references/sample-project-map.md); retain their upstream notices and sample-specific licenses. |
+| Apple Foundation Models example excerpts | See the [sample provenance and dependency notes](skills/apple-foundation-models-skill-legacy/references/sample-project-map.md); retain their upstream notices and sample-specific licenses. |
 
 ## Original Work
 
 These skill instructions were created for this repository; bundled third-party examples and libraries retain their own attribution:
 
-- `skills/apple-foundation-models-skill`
+- `skills/apple-foundation-models-skill-legacy`
 - `skills/static-website-builder`
 - `skills/write-like-human`
 

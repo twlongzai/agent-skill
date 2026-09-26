@@ -91,7 +91,7 @@ Claude 會依工作內容與 `description` 自動觸發，也可以在 Claude Co
 
 | Skill | 明確指定範例 |
 | --- | --- |
-| `apple-foundation-models-skill` | `/apple-foundation-models-skill review this Foundation Models session design` |
+| `apple-foundation-models-skill-legacy` | `/apple-foundation-models-skill-legacy review this Foundation Models session design for iOS 26 / macOS 26` |
 | `static-website-builder` | `/static-website-builder build a bilingual documentation site from these Markdown files` |
 | `swiftui-expert-skill` | `/swiftui-expert-skill review this view's state ownership and navigation` |
 | `web-design-engineer` | `/web-design-engineer improve this dashboard's visual hierarchy and interactions` |

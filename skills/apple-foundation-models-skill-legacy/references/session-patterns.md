@@ -1,10 +1,12 @@
 # Session Patterns
 
+**Legacy scope:** These patterns are only for iOS 26 / macOS 26 or earlier, subject to each API's minimum OS availability. For new iOS 27 / macOS 27 features, see [What's new in the Foundation Models framework — WWDC26 session 241](https://developer.apple.com/videos/play/wwdc2026/241/).
+
 Use these patterns when implementing or reviewing `FoundationModels` code.
 
 ## Choose The Affected Pattern
 
-For open-ended generation, use `SystemLanguageModel.default` or `SystemLanguageModel(useCase: .general)`. Use `.contentTagging` for a matching tagging/classification task. Check APIs against the project's SDK; these excerpts primarily illustrate the OS 26 on-device APIs.
+For open-ended generation, use `SystemLanguageModel.default` or `SystemLanguageModel(useCase: .general)`. Use `.contentTagging` for a matching tagging/classification task. Check APIs against the project's SDK; these excerpts illustrate the legacy OS 26 on-device APIs.
 
 Use `respond(to:)` for one-shot text, typed `respond(to:generating:)` for complete structured results, and `streamResponse` when partial text or `PartiallyGenerated` fields benefit the UI. Dynamic `GeneratedContent` is useful when a static `@Generable` type cannot describe the schema.
 

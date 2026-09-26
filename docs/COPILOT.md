@@ -84,7 +84,7 @@ Copilot 會依 skill description 自動決定是否載入。CLI 的 `/skills` �
 
 | Skill | 明確指定範例 |
 | --- | --- |
-| `apple-foundation-models-skill` | `Use the /apple-foundation-models-skill skill to review this Foundation Models feature.` |
+| `apple-foundation-models-skill-legacy` | `Use the /apple-foundation-models-skill-legacy skill to review this Foundation Models feature for iOS 26 / macOS 26.` |
 | `static-website-builder` | `Use the /static-website-builder skill to build a text-first docs site.` |
 | `swiftui-expert-skill` | `Use the /swiftui-expert-skill skill to review this SwiftUI architecture.` |
 | `web-design-engineer` | `Use the /web-design-engineer skill to improve this landing page.` |

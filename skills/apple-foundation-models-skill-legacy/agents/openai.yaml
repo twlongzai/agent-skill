@@ -1,0 +1,7 @@
+interface:
+  display_name: "Apple Foundation Models (Legacy)"
+  short_description: "Legacy guidance for iOS 26 / macOS 26 or earlier only"
+  default_prompt: "Use $apple-foundation-models-skill-legacy to add or review a Foundation Models feature for iOS 26 / macOS 26 or earlier in this SwiftUI app."
+
+policy:
+  allow_implicit_invocation: true

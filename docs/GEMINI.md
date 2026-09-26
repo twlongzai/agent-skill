@@ -104,7 +104,7 @@ Gemini／Antigravity 會先讀取 skill 的名稱與 description，相關時再�
 
 | Skill | 明確指定範例 |
 | --- | --- |
-| `apple-foundation-models-skill` | `Use the apple-foundation-models-skill to review this tool-calling session.` |
+| `apple-foundation-models-skill-legacy` | `Use the apple-foundation-models-skill-legacy to review this tool-calling session for iOS 26 / macOS 26.` |
 | `static-website-builder` | `Use the static-website-builder skill to turn these notes into a multilingual docs site.` |
 | `swiftui-expert-skill` | `Use the swiftui-expert-skill to refactor state ownership in this feature.` |
 | `web-design-engineer` | `Use the web-design-engineer skill to redesign this interactive dashboard.` |

@@ -1,11 +1,13 @@
 ---
-name: apple-foundation-models-skill
-description: "Use when building, reviewing, or refactoring SwiftUI features that use Apple's FoundationModels framework, including LanguageModelSession, on-device availability, guided generation, streaming, tools, and model-specific prompts."
+name: apple-foundation-models-skill-legacy
+description: "Use when building, reviewing, or refactoring legacy SwiftUI FoundationModels features for iOS 26 / macOS 26 or earlier, including corresponding iPadOS and visionOS releases. Covers LanguageModelSession, on-device availability, guided generation, streaming, tools, and model-specific prompts; excludes iOS 27 / macOS 27 features."
 ---
 
-# Apple Foundation Models Skill
+# Apple Foundation Models Skill (Legacy)
 
-Use this skill for on-device `FoundationModels` features on iOS, iPadOS, macOS, or visionOS. Preserve the local inference path and the app's existing architecture, readiness states, permissions, and user authorization. Add network access when the product requires it.
+**Legacy scope:** This skill is only for iOS 26 / macOS 26 or earlier, including the corresponding iPadOS and visionOS releases. This limits the guidance, not each API's minimum OS requirement; check SDK availability and provide fallbacks for earlier deployment targets. For new Foundation Models features in iOS 27 / macOS 27, refer to [What's new in the Foundation Models framework — WWDC26 session 241](https://developer.apple.com/videos/play/wwdc2026/241/).
+
+Use this skill for on-device `FoundationModels` features within that legacy scope. Preserve the local inference path and the app's existing architecture, readiness states, permissions, and user authorization. Add network access when the product requires it.
 
 ## Route By Task
 

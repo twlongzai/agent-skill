@@ -1,5 +1,7 @@
 # Prompting And Adaptation
 
+**Legacy scope:** This guidance is only for iOS 26 / macOS 26 or earlier, subject to each API's minimum OS availability. For new iOS 27 / macOS 27 features, see [What's new in the Foundation Models framework — WWDC26 session 241](https://developer.apple.com/videos/play/wwdc2026/241/).
+
 Use this note when prompts become brittle, verbose, or model-version specific.
 
 ## Prompt Split
