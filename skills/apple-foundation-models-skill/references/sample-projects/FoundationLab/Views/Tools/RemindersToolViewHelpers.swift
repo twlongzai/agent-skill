@@ -32,8 +32,10 @@ extension RemindersToolView {
             "If you need to create a reminder, call the RemindersTool immediately with the appropriate parameters."
             "IMPORTANT: When setting due dates, you MUST format them as 'yyyy-MM-dd HH:mm:ss' " +
             "(24-hour format)."
-            "Examples: '2025-01-15 17:00:00' for tomorrow at 5 PM, '2025-01-16 09:30:00' for " +
-            "day after tomorrow at 9:30 AM."
+            "For 'tomorrow at 5 PM', compute tomorrow from the current date in the user's time zone, " +
+            "then format that computed date with the time '17:00:00'."
+            "For 'the day after tomorrow at 9:30 AM', compute two calendar days after the current date " +
+            "in the user's time zone and use the time '09:30:00'."
             "Calculate the exact date and time based on the current date and time provided above."
         }
     }

@@ -22,8 +22,8 @@ struct HealthToolView: View {
             errorMessage: executor.errorMessage
         ) {
             VStack(alignment: .leading, spacing: Spacing.large) {
-                if let successMessage = executor.successMessage {
-                    SuccessBanner(message: successMessage)
+                if let completionMessage = executor.completionMessage {
+                    BannerView(message: completionMessage, type: .info)
                 }
 
                 ToolInputField(
@@ -41,7 +41,7 @@ struct HealthToolView: View {
                 .disabled(executor.isRunning || query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
                 if !executor.result.isEmpty {
-                    ResultDisplay(result: executor.result, isSuccess: executor.errorMessage == nil)
+                    ResultDisplay(result: executor.result, isSuccess: executor.actionVerified)
                 }
             }
         }
@@ -86,8 +86,7 @@ struct HealthToolView: View {
 
 	            await executor.execute(
 	                tool: HealthTool(),
-	                prompt: prompt,
-	                successMessage: "Health data query completed successfully!"
+	                prompt: prompt
 	            )
 	        }
 	    }

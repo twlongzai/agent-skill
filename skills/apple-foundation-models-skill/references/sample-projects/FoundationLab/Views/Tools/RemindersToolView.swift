@@ -34,11 +34,10 @@ struct RemindersToolView: View {
   }()
 
   // MARK: - State Properties
-  @State private var executor = ToolExecutor()
   @State private var isRunning = false
   @State private var result: String = ""
   @State private var errorMessage: String?
-  @State private var successMessage: String?
+  @State private var completionMessage: String?
 
   // Input fields
   @State private var reminderTitle: String = ""
@@ -59,14 +58,14 @@ struct RemindersToolView: View {
       errorMessage: errorMessage
     ) {
       VStack(alignment: .leading, spacing: 20) {
-        if let success = successMessage {
-          SuccessBanner(message: success)
+        if let completion = completionMessage {
+          BannerView(message: completion, type: .info)
         }
 
         inputSection
 
         if !result.isEmpty {
-          ResultDisplay(result: result, isSuccess: errorMessage == nil)
+          ResultDisplay(result: result, isSuccess: false)
         }
       }
     }
@@ -190,7 +189,7 @@ struct RemindersToolView: View {
   private func performReminderAction() async {
     isRunning = true
     errorMessage = nil
-    successMessage = nil
+    completionMessage = nil
     result = ""
 
     do {
@@ -221,21 +220,14 @@ struct RemindersToolView: View {
       }
 
       result = response
-      successMessage = "Request completed successfully!"
-
-      // Clear form on success for quick create
-      if !useCustomPrompt {
-        reminderTitle = ""
-        reminderNotes = ""
-        selectedDate = Date().addingTimeInterval(Constants.defaultDateOffset)
-        selectedPriority = .none
-        customPrompt = ""
-      }
+      // The external RemindersTool excerpt supplies no structured receipt here.
+      // Preserve the form, including on refusal or an unverified action.
+      completionMessage = "Response generated. Check Reminders for the result."
 
     } catch {
       errorMessage = FoundationModelsErrorHandler.handleError(error)
-      // Clear success message on error
-      successMessage = nil
+      // Preserve input and clear generation status on error
+      completionMessage = nil
     }
 
     isRunning = false

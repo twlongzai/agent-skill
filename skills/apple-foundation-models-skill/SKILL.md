@@ -1,84 +1,43 @@
 ---
 name: apple-foundation-models-skill
-description: "Build or review Apple Foundation Models features in SwiftUI. Use for availability, LanguageModelSession, prompts, streaming, structured output, tool calling, prewarming, and model adaptation."
+description: "Use when building, reviewing, or refactoring SwiftUI features that use Apple's FoundationModels framework, including LanguageModelSession, on-device availability, guided generation, streaming, tools, and model-specific prompts."
 ---
 
 # Apple Foundation Models Skill
 
-## Overview
-Use this skill for on-device generative features built with `FoundationModels` on iOS, iPadOS, macOS, or visionOS. Focus on correct availability handling, durable `LanguageModelSession` design, concise prompting, structured generation, streaming UX, and tool integration that stays local-first unless the product explicitly requires network access.
+Use this skill for on-device `FoundationModels` features on iOS, iPadOS, macOS, or visionOS. Preserve the local inference path and the app's existing architecture, readiness states, permissions, and user authorization. Add network access when the product requires it.
 
-## Quick Start
-- Check `SystemLanguageModel.default.availability` before exposing model-backed actions.
-- Keep long-lived session state out of SwiftUI views when the feature is conversational or streams over time.
-- Put durable policy and role constraints in `Instructions`; keep request data in `Prompt`.
-- Prefer `@Generable` and `@Guide` for typed output before falling back to raw text parsing.
-- Use `streamResponse` for chat, progressive rendering, or partially generated structured content.
-- Use `prewarm()` only when the user is likely to invoke the feature soon.
+## Route By Task
 
-## Workflow
+Choose the relevant path; a prompt edit or focused review needs only the references and checks that bear on that change.
 
-### 1. Gate on availability first
-- Read `references/session-patterns.md` for concrete patterns.
-- Branch explicitly on `.available` vs `.unavailable(reason)`.
-- Distinguish `deviceNotEligible`, `appleIntelligenceNotEnabled`, and `modelNotReady`.
-- Disable actions until the model is ready.
-- If the current app has required readiness states, preserve them instead of inventing new ones.
+| Task | Read and do | Completion evidence |
+| --- | --- | --- |
+| Review existing code | Read the relevant session, output, streaming, or tool pattern in `references/session-patterns.md`; inspect the affected caller and lifecycle. | Report actionable findings with file locations, effect, and evidence; distinguish static conclusions from runtime assumptions. State when no issue was found. |
+| Implement or refactor | Check target OS/SDK and the app's existing availability gate; use `references/session-patterns.md` for the affected behavior and `references/sample-project-map.md` for a concrete example. | Verify the changed path with the smallest useful check: compilation for API changes, lifecycle/error checks for streaming, or tool-result checks for actions. Report checks run and remaining device requirements. |
+| Adjust prompts or generation quality | Read `references/prompting-and-adaptation.md`; preserve the Apple device model's useful examples and schema constraints. Change one variable at a time. | Compare representative inputs against the task's quality requirements on the target OS/model when available. Report the comparison, or label the edit as unvalidated when generation cannot be run. |
+| Evaluate an adapter | Read the version and deployment constraints in `references/prompting-and-adaptation.md` before proposing training. | Establish target OS/model compatibility, an evaluation dataset, and deployment requirements before recommending adapter work. |
 
-### 2. Choose the model and session shape
-- Use `SystemLanguageModel.default` or `.general` for open-ended generation.
-- Use a specialized use case such as `.contentTagging` for tagging, extraction, or classification-style work when it matches the task.
-- Keep one `LanguageModelSession` alive per conversation or workflow. Recreate it only when the model, instructions, or tools materially change.
-- If multiple views share the same model-backed workflow, move session ownership into a service or actor boundary and let the view model orchestrate UI state.
+## Core Decisions
 
-### 3. Choose the output mode deliberately
-- Use `respond(to:)` for plain text completion.
-- Use `respond(generating:)` for typed structured results.
-- Use `streamResponse(to:)` for token-like text streaming.
-- Use `streamResponse(generating:)` when the UI should render `PartiallyGenerated` structured output as it arrives.
-- Use `GeneratedContent` only when the schema is dynamic enough that a static `@Generable` type is a poor fit.
+- Gate model-backed actions on `SystemLanguageModel.default.availability`; distinguish `deviceNotEligible`, `appleIntelligenceNotEnabled`, and `modelNotReady` when the UI needs reasons. Keep required app readiness states.
+- Put durable policy and role constraints in `Instructions`, and request facts and user content in `Prompt` or `@PromptBuilder`.
+- Use `@Generable` and `@Guide` for predictable fields, counts, or enums; use dynamic `GeneratedContent` when a static type is unsuitable.
+- Reuse a session for related conversation turns. Follow existing ownership; long-lived or shared workflows may need a service, view model, or actor.
+- Use streaming when partial rendering benefits the UI. Cancel in-flight work on departure or replacement, and avoid overlapping requests on one session.
+- Return compact tool results. Treat a generated reply and a verified tool action as separate outcomes; preserve input after failure or an unverified action.
+- Prewarm when an upcoming user interaction gives at least one second of useful lead time. Loading and latency improvements are not guaranteed.
 
-### 4. Design prompts with a stable split
-- Read `references/prompting-and-adaptation.md` when changing prompts or evaluating adapters.
-- Put long-lived behavior in `Instructions`.
-- Put request-specific facts, user text, and examples in `Prompt` or `@PromptBuilder`.
-- Prefer short, explicit constraints over broad style prose.
-- If the task needs shape guarantees, use schema and guides instead of adding more English instructions.
-- Keep prompts compact so transcript history and tool results still fit in context.
+## Evidence And Limits
 
-### 5. Add tools only when the model needs outside facts or app actions
-- Define strongly typed tool arguments with `@Generable`.
-- Make tool descriptions precise enough that the model can choose them correctly.
-- Return compact task-shaped results, not unbounded dumps.
-- For workflows that always need a tool, say so explicitly in `Instructions`.
+If the SDK, host dependencies, eligible device, model readiness, permissions, or required data are unavailable, complete the independent work and identify the exact unverified behavior and the next check. Do not report an unrun build, generation, or external action as successful. Avoid retrying a side-effecting tool until its previous outcome is known.
 
-### 6. Treat transcript and streaming as product features
-- Reuse the same session when prior turns should influence the next answer.
-- Use `session.isResponding` to drive loading state and cancellation affordances.
-- Cancel in-flight streaming tasks when the user leaves the screen or starts a new request.
-- When context grows too large, summarize prior turns and start a fresh session with updated instructions instead of blindly appending forever.
+Scope verification to the task: a prose-only prompt review does not require a full app build. Read sample provenance and host requirements before copying or attempting to run an excerpt. Keep tool authorization enforced in app/tool code; prompt instructions do not grant system permissions.
 
-### 7. Use prewarming narrowly
-- Call `prewarm()` when a feature is about to be used.
-- Call `prewarm(promptPrefix:)` only when many requests share a stable leading prompt or instruction prefix.
-- Avoid broad startup prewarming unless the feature is the primary app path and latency matters more than memory pressure.
+When evaluating this skill's routing or workload, test GPT-6 Astra, Sol, and Luna separately. Results from one model do not establish the others' behavior. These agent tests are separate from generation-quality tests of Apple's on-device model.
 
-## Unison Alignment
-- Preserve the offline-first inference path once the model is available.
-- Keep UI state in `@Observable` and `@MainActor` view models.
-- Prefer an actor-owned engine or coordinator for session lifecycle and model state.
-- Surface explicit user-visible states for model checking, ready, and failed.
+## References On Demand
 
-## Load These References As Needed
-- `references/session-patterns.md`
-- `references/prompting-and-adaptation.md`
-- `references/sample-project-map.md`
-- `references/sample-projects/` for bundled local Swift example files copied into this skill
-
-## Default Deliverable
-When using this skill, prefer changes that:
-- add readiness gating before model use
-- keep prompts and instructions explicit in code
-- use typed generation for structured outputs
-- preserve cancellation and streaming correctness
-- note OS or device constraints when they affect behavior
+- `references/session-patterns.md`: availability, session/output selection, streaming, tools, context, prewarming, and conditional project architecture.
+- `references/prompting-and-adaptation.md`: prompt design, OS/model changes, schema, and OS 26 adapter constraints.
+- `references/sample-project-map.md`: specific local examples, upstream sources, host dependencies, licenses, and validation limits.

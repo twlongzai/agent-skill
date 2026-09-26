@@ -50,7 +50,7 @@ struct WebMetadataToolView: View {
         .disabled(executor.isRunning || url.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
         if !executor.result.isEmpty {
-          ResultDisplay(result: executor.result, isSuccess: executor.errorMessage == nil)
+          ResultDisplay(result: executor.result, isSuccess: executor.actionVerified)
         }
       }
     }

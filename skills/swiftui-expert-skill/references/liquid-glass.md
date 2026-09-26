@@ -1,4 +1,4 @@
-# SwiftUI Liquid Glass Reference (iOS 26+)
+# SwiftUI Liquid Glass Reference (Apple OS 26+)
 
 ## Overview
 
@@ -6,10 +6,12 @@ Liquid Glass is Apple's new design language introduced in iOS 26. It provides tr
 
 ## Availability
 
-All Liquid Glass APIs require iOS 26 or later. Always provide fallbacks:
+Load this reference for explicitly requested adoption or work on existing glass. Custom SwiftUI Liquid Glass requires iOS, macOS, tvOS, or watchOS 26+ and is unavailable on visionOS. Preserve fallbacks when the project supports older systems. Minimum-version annotations are appropriate for glass-only helpers; a runtime check in a caller does not protect an unannotated helper body.
+
+The examples below target supported non-visionOS platforms. For a cross-platform helper including visionOS, use conditional compilation as shown under Fallback Strategies.
 
 ```swift
-if #available(iOS 26, *) {
+if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
     // Liquid Glass implementation
 } else {
     // Fallback using materials
@@ -23,7 +25,7 @@ if #available(iOS 26, *) {
 The primary modifier for applying glass effects to views:
 
 ```swift
-.glassEffect(_ style: GlassEffectStyle = .regular, in shape: some Shape = .rect)
+.glassEffect(_ glass: Glass = .regular, in shape: some Shape = DefaultGlassEffectShape())
 ```
 
 #### Basic Usage
@@ -31,7 +33,7 @@ The primary modifier for applying glass effects to views:
 ```swift
 Text("Hello")
     .padding()
-    .glassEffect()  // Default regular style, rect shape
+    .glassEffect()  // Default regular material, capsule shape
 ```
 
 #### With Shape
@@ -51,13 +53,14 @@ Text("Capsule")
     .glassEffect(in: .capsule)
 ```
 
-### GlassEffectStyle
+### Glass
 
-#### Prominence Levels
+#### Material Variants
 
 ```swift
 .glassEffect(.regular)     // Standard glass appearance
-.glassEffect(.prominent)   // More visible, higher contrast
+.glassEffect(.clear)       // Clear glass variant
+.glassEffect(.identity)    // No glass effect
 ```
 
 #### Tinting
@@ -66,7 +69,7 @@ Add color tint to the glass:
 
 ```swift
 .glassEffect(.regular.tint(.blue))
-.glassEffect(.prominent.tint(.red.opacity(0.3)))
+.glassEffect(.regular.tint(.red.opacity(0.3)))
 ```
 
 #### Interactivity
@@ -112,7 +115,7 @@ GlassEffectContainer(spacing: 24) {
 }
 ```
 
-**Note**: The container's `spacing` parameter should match the actual spacing in your layout for proper glass effect rendering.
+The container’s `spacing` is the interaction/blending distance between effects, not the layout spacing. A larger value blends shapes sooner; a value larger than the interior layout gap can merge effects at rest. Choose both values for the intended transition and verify the result visually.
 
 ## Glass Button Styles
 
@@ -145,6 +148,8 @@ Button(action: { }) {
 Create smooth transitions between glass elements using `glassEffectID` and `@Namespace`:
 
 ```swift
+@available(iOS 26, macOS 26, tvOS 26, watchOS 26, *)
+@available(visionOS, unavailable)
 struct MorphingExample: View {
     @Namespace private var animation
     @State private var isExpanded = false
@@ -168,7 +173,7 @@ struct MorphingExample: View {
 
 ### Requirements for Morphing
 
-1. Both views must have the same `glassEffectID`
+1. Give each effect a stable, unique ID in the namespace; reuse an ID across mutually exclusive representations of the same logical element
 2. Use the same `@Namespace`
 3. Wrap in `GlassEffectContainer`
 4. Apply animation to the container or parent
@@ -197,16 +202,17 @@ Text("Label")
 ### Toolbar with Glass Buttons
 
 ```swift
+@available(visionOS, unavailable)
 struct GlassToolbar: View {
     var body: some View {
-        if #available(iOS 26, *) {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             GlassEffectContainer(spacing: 16) {
                 HStack(spacing: 16) {
-                    ToolbarButton(icon: "pencil", action: { })
-                    ToolbarButton(icon: "eraser", action: { })
-                    ToolbarButton(icon: "scissors", action: { })
+                    ToolbarButton(title: "Pencil", icon: "pencil", action: { })
+                    ToolbarButton(title: "Eraser", icon: "eraser", action: { })
+                    ToolbarButton(title: "Cut", icon: "scissors", action: { })
                     Spacer()
-                    ToolbarButton(icon: "square.and.arrow.up", action: { })
+                    ToolbarButton(title: "Share", icon: "square.and.arrow.up", action: { })
                 }
                 .padding(.horizontal)
             }
@@ -219,13 +225,17 @@ struct GlassToolbar: View {
     }
 }
 
+@available(iOS 26, macOS 26, tvOS 26, watchOS 26, *)
+@available(visionOS, unavailable)
 struct ToolbarButton: View {
+    let title: String
     let icon: String
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: icon)
+            Label(title, systemImage: icon)
+                .labelStyle(.iconOnly)
                 .font(.title2)
                 .frame(width: 44, height: 44)
         }
@@ -237,12 +247,13 @@ struct ToolbarButton: View {
 ### Card with Glass Effect
 
 ```swift
+@available(visionOS, unavailable)
 struct GlassCard: View {
     let title: String
     let subtitle: String
 
     var body: some View {
-        if #available(iOS 26, *) {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             cardContent
                 .glassEffect(.regular, in: .rect(cornerRadius: 20))
         } else {
@@ -267,14 +278,17 @@ struct GlassCard: View {
 
 ### Segmented Control
 
+This example assumes fixed options in a stable order; dynamic/reorderable options should carry stable model IDs instead of index identity.
+
 ```swift
+@available(visionOS, unavailable)
 struct GlassSegmentedControl: View {
     @Binding var selection: Int
     let options: [String]
     @Namespace private var animation
 
     var body: some View {
-        if #available(iOS 26, *) {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             GlassEffectContainer(spacing: 4) {
                 HStack(spacing: 4) {
                     ForEach(options.indices, id: \.self) { index in
@@ -286,7 +300,7 @@ struct GlassSegmentedControl: View {
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .glassEffect(
-                            selection == index ? .prominent.interactive() : .regular.interactive(),
+                            selection == index ? .regular.tint(.accentColor).interactive() : .regular.interactive(),
                             in: .capsule
                         )
                         .glassEffectID(selection == index ? "selected" : "option\(index)", in: animation)
@@ -311,7 +325,7 @@ struct GlassSegmentedControl: View {
 ### Using Materials
 
 ```swift
-if #available(iOS 26, *) {
+if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
     content.glassEffect()
 } else {
     content.background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
@@ -331,16 +345,21 @@ if #available(iOS 26, *) {
 ```swift
 extension View {
     @ViewBuilder
-    func glassEffectWithFallback(
-        _ style: GlassEffectStyle = .regular,
-        in shape: some Shape = .rect,
+    func glassEffectWithFallback<S: Shape>(
+        in shape: S = Capsule(),
+        tint: Color? = nil,
+        isInteractive: Bool = false,
         fallbackMaterial: Material = .ultraThinMaterial
     ) -> some View {
-        if #available(iOS 26, *) {
-            self.glassEffect(style, in: shape)
+        #if os(visionOS)
+        self.background(fallbackMaterial, in: shape)
+        #else
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
+            self.glassEffect(.regular.tint(tint).interactive(isInteractive), in: shape)
         } else {
             self.background(fallbackMaterial, in: shape)
         }
+        #endif
     }
 }
 ```
@@ -352,7 +371,7 @@ extension View {
 - Use `GlassEffectContainer` for grouped glass elements
 - Apply glass after layout modifiers
 - Use `.interactive()` only on tappable elements
-- Match container spacing with layout spacing
+- Tune container blending distance independently of layout spacing
 - Provide material-based fallbacks for older iOS
 - Keep glass shapes consistent within a feature
 
@@ -367,11 +386,17 @@ extension View {
 
 ## Checklist
 
-- [ ] `#available(iOS 26, *)` with fallback
+- [ ] Each target platform’s availability is covered; glass-only helpers are annotated and older targets have fallbacks
 - [ ] `GlassEffectContainer` wraps grouped elements
 - [ ] `.glassEffect()` applied after layout modifiers
 - [ ] `.interactive()` only on user-interactable elements
 - [ ] `glassEffectID` with `@Namespace` for morphing
 - [ ] Consistent shapes and spacing across feature
-- [ ] Container spacing matches layout spacing
-- [ ] Appropriate prominence levels used
+- [ ] Container blending distance produces the intended effect relative to layout spacing
+- [ ] Valid Glass variants/tints or prominent button styles are used appropriately
+
+## Apple API Sources
+
+- [glassEffect(_:in:)](https://developer.apple.com/documentation/swiftui/view/glasseffect(_:in:)) — `Glass`, default Capsule, modifier semantics
+- [Glass](https://developer.apple.com/documentation/swiftui/glass) — regular, clear, identity, tint, interactivity
+- [Applying Liquid Glass to custom views](https://developer.apple.com/documentation/SwiftUI/Applying-Liquid-Glass-to-custom-views) — grouping, blending distance, identity, transitions

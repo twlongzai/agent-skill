@@ -177,6 +177,7 @@ containerRelativeFrame(.horizontal) { width, _ in
 final class LoginViewModel {
     var email = ""
     var password = ""
+    var errorMessage: String?
     var isValid: Bool {
         !email.isEmpty && password.count >= 8
     }
@@ -195,10 +196,19 @@ struct LoginView: View {
             SecureField("Password", text: $viewModel.password)
             Button("Login") {
                 Task {
-                    try? await viewModel.login()
+                    do {
+                        try await viewModel.login()
+                    } catch is CancellationError {
+                        // Cancellation is not a login failure.
+                    } catch {
+                        viewModel.errorMessage = error.localizedDescription
+                    }
                 }
             }
             .disabled(!viewModel.isValid)
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage).foregroundStyle(.red)
+            }
         }
     }
 }
@@ -212,6 +222,7 @@ struct LoginView: View {
 final class LoginViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
+    @Published var errorMessage: String?
     var isValid: Bool {
         !email.isEmpty && password.count >= 8
     }
@@ -230,10 +241,19 @@ struct LoginView: View {
             SecureField("Password", text: $viewModel.password)
             Button("Login") {
                 Task {
-                    try? await viewModel.login()
+                    do {
+                        try await viewModel.login()
+                    } catch is CancellationError {
+                        // Cancellation is not a login failure.
+                    } catch {
+                        viewModel.errorMessage = error.localizedDescription
+                    }
                 }
             }
             .disabled(!viewModel.isValid)
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage).foregroundStyle(.red)
+            }
         }
     }
 }

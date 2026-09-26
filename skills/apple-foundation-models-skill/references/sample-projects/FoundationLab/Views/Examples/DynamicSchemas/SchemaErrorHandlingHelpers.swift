@@ -54,7 +54,7 @@ extension SchemaErrorHandlingView {
                 DynamicSchemaHelpers.guidedProperty(
                     "productId",
                     type: String.self,
-                    guides: [.pattern(/^PROD-\d {6}$/)],
+                    guides: [.pattern(/^PROD-\d{6}$/)],
                     description: "Unique product identifier",
                     isOptional: false  // Required!
                 ),
@@ -121,7 +121,7 @@ extension SchemaErrorHandlingView {
                 DynamicSchemaHelpers.guidedProperty(
                     "sku",
                     type: String.self,
-                    guides: [.pattern(/^[A-Z] {3}-\d {3}-[A-Z] {3}$/)],
+                    guides: [.pattern(/^[A-Z]{3}-\d{3}-[A-Z]{3}$/)],
                     description: "SKU must match pattern ABC-123-XYZ"
                 ),
                 DynamicSchemaHelpers.guidedProperty(

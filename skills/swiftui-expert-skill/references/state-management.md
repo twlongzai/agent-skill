@@ -30,11 +30,11 @@ Always mark `@State` properties as `private`. Use for internal view state that t
 
 ### iOS 17+ with @Observable (Preferred)
 
-**Always prefer `@Observable` over `ObservableObject`.** With iOS 17's `@Observable` macro, use `@State` instead of `@StateObject`:
+Prefer `@Observable` for supported deployment targets. With iOS 17's `@Observable` macro, use `@State` instead of `@StateObject`:
 
 ```swift
 @Observable
-@MainActor  // Always mark @Observable classes with @MainActor
+@MainActor  // This is a UI-facing mutable model
 final class DataModel {
     var name = "Some Name"
     var count = 0
@@ -191,7 +191,9 @@ struct MovieDetailsView: View {
 
 ## Don't Pass Values as @State
 
-**Critical**: Never declare passed values as `@State` or `@StateObject`. The value you provide is only an initial value and won't update.
+Use plain values, observed inputs, or bindings for data that must stay synchronized with a parent. `@State` and `@StateObject` preserve owned values across updates, so a parent’s later input will not automatically replace them.
+
+An explicit initializer may legitimately use external data to create an owned model or a one-time local editing draft. Keep that state private, document the intended lifetime, and decide explicitly how input changes should behave. Apple supports `StateObject(wrappedValue:)` with fixed external initialization parameters; changing view identity to reset state also resets other local state. This exception does not make passed state a synchronization mechanism.
 
 ```swift
 // Parent
@@ -438,10 +440,15 @@ struct ChildView: View {
 
 ## Key Principles
 
-1. **Always prefer `@Observable` over `ObservableObject`** for new code
-2. **Mark `@Observable` classes with `@MainActor` for thread safety (unless using default actor isolation)`**
+1. Prefer `@Observable` for new UI models on supported targets; retain compatible legacy models when needed
+2. Isolate UI-facing mutable models on `@MainActor` unless default isolation already does so; choose non-UI model isolation separately
 3. Use `@State` with `@Observable` classes (not `@StateObject`)
 4. Use `@Bindable` for injected `@Observable` objects that need bindings
 5. **Always mark `@State` and `@StateObject` as `private`**
-6. **Never declare passed values as `@State` or `@StateObject`**
+6. Use plain inputs/bindings for parent synchronization; document intentional one-time owned-state initialization
 7. With `@Observable`, nested objects work fine; with `ObservableObject`, pass nested objects directly to child views
+
+## Apple API Sources
+
+- [StateObject](https://developer.apple.com/documentation/swiftui/stateobject) — ownership, fixed external initialization inputs, and identity resets
+- [Migrating to Observation](https://developer.apple.com/documentation/swiftui/migrating-from-the-observable-object-protocol-to-the-observable-macro) — supported platforms, incremental migration, property read tracking

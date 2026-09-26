@@ -11,6 +11,11 @@ import FoundationModels
 struct Search1WebSearchTool: Tool {
     let name = "searchWeb"
     let description = "Search the web using Search1API's free keyless endpoint"
+    let urlSession: URLSession
+
+    init(urlSession: URLSession = .shared) {
+        self.urlSession = urlSession
+    }
 
     @Generable
     struct Arguments {
@@ -21,15 +26,13 @@ struct Search1WebSearchTool: Tool {
     func call(arguments: Arguments) async throws -> some PromptRepresentable {
         let query = arguments.query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
-            return createErrorOutput(for: query, message: "Search query cannot be empty.")
+            throw Search1WebSearchError.emptyQuery
         }
 
-        do {
-            let response = try await search(query: query)
-            return createSuccessOutput(for: query, results: response.results)
-        } catch {
-            return createErrorOutput(for: query, message: "Web search failed: \(error.localizedDescription)")
-        }
+        // Propagate a failed request to the host rather than embedding it in a
+        // normal model reply, which could be mistaken for a successful lookup.
+        let response = try await search(query: query)
+        return createSuccessOutput(for: query, results: response.results)
     }
 }
 
@@ -59,7 +62,7 @@ extension Search1WebSearchTool {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(payload)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await urlSession.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw Search1WebSearchError.invalidResponse
@@ -100,14 +103,7 @@ extension Search1WebSearchTool {
         ])
     }
 
-    private func createErrorOutput(for query: String, message: String) -> GeneratedContent {
-        return GeneratedContent(properties: [
-            "status": "error",
-            "query": query,
-            "resultCount": 0,
-            "summary": message
-        ])
-    }
+
 }
 
 private struct SearchRequest: Encodable {
@@ -146,12 +142,15 @@ private struct SearchResult: Decodable {
 }
 
 private enum Search1WebSearchError: LocalizedError {
+    case emptyQuery
     case invalidURL
     case invalidResponse
     case httpStatus(code: Int, body: String)
 
     var errorDescription: String? {
         switch self {
+        case .emptyQuery:
+            return "Search query cannot be empty."
         case .invalidURL:
             return "Invalid Search1API URL."
         case .invalidResponse:

@@ -46,13 +46,16 @@ In those cases, move the contract into `@Generable` and `@Guide`.
 - If behavior shifted, change one variable at a time: instructions, examples, schema, then sampling.
 
 ## When To Consider Adapters
+First establish the target OS and system model version. Apple's adapter training toolkit 26.0.0 is its final release and is not compatible with macOS, iOS, iPadOS, or visionOS 27 and later. The advice below applies to a compatible OS 26 system model; for another target, verify current supported alternatives instead of assuming this training path works.
+
 Optimize prompt, instructions, schema, and tool design first. Consider adapters only if all of these are true:
 - the task is repeated and narrow
 - the domain vocabulary is specialized
 - output format quality is still insufficient after prompt cleanup
 - the product can justify the additional evaluation and maintenance cost
+- a suitable training/evaluation dataset and compatible model assets are available
 
-If prompt engineering still fails, adapter work is the next step. Do not jump to adapters to compensate for vague prompts.
+For a compatible target, adapter work can be an evaluated next step after prompt engineering. Each adapter matches a specific system model version. Deployment needs the Foundation Models Framework Adapter Entitlement; local training/testing does not. Establish distribution and retraining requirements before implementation. See [Apple's adapter training and compatibility requirements](https://developer.apple.com/apple-intelligence/foundation-models-adapter/).
 
 ## Common Review Heuristics
 - If the prompt repeats the same rule in multiple places, tighten the split between `Instructions` and `Prompt`.

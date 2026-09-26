@@ -4,12 +4,12 @@
 
 ### 1. Avoid Redundant State Updates
 
-SwiftUI doesn't compare values before triggering updates:
+Equal-assignment behavior depends on the state/observation mechanism and toolchain. In measured hot paths, avoid needless work and state writes:
 
 ```swift
-// BAD - triggers update even if value unchanged
+// Avoid unnecessary assignments in a high-frequency publisher
 .onReceive(publisher) { value in
-    self.currentValue = value  // Always triggers body re-evaluation
+    self.currentValue = value  // May perform observation work even when unchanged
 }
 
 // GOOD - only update when different
@@ -70,14 +70,14 @@ struct SettingsView: View {
     
     var body: some View {
         VStack {
-            ThemeSelector(config: config)  // Gets notified of ALL config changes
-            FontSizeSlider(config: config)  // Gets notified of ALL config changes
+            ThemeSelector(config: config)  // Depends on the observable properties its body reads
+            FontSizeSlider(config: config)  // A whole-object input does not itself observe every property
         }
     }
 }
 ```
 
-**Why**: When using `ObservableObject`, any `@Published` property change triggers updates in all views observing the object. With `@Observable`, views update when properties they access change, but passing entire objects still creates unnecessary dependencies.
+**Why**: When using `ObservableObject`, any `@Published` property change triggers updates in all views observing the object. With `@Observable`, views track properties accessed during `body`; passing the object alone does not subscribe a view to every property. Prefer specific inputs where they clarify a component boundary or reduce actual dependencies.
 
 ### 4. Use Equatable Views
 
@@ -103,56 +103,11 @@ ExpensiveView(data: data)
 
 **Caution**: If you add new state or dependencies to your view, remember to update your `==` function!
 
-### 5. POD Views for Fast Diffing
+### 5. View Diffing: Measure Rather Than Assume
 
-**POD (Plain Old Data) views use `memcmp` for fastest diffing.** A view is POD if it only contains simple value types and no property wrappers.
+SwiftUI’s internal comparison strategy is not a public performance contract. Do not promise `memcmp`, guaranteed body skipping, or faster rendering from a presumed POD classification. In particular, a view containing `String` is not evidence of a trivial/POD representation merely because it has no property wrappers.
 
-```swift
-// POD view - fastest diffing
-struct FastView: View {
-    let title: String
-    let count: Int
-    
-    var body: some View {
-        Text("\(title): \(count)")
-    }
-}
-
-// Non-POD view - uses reflection or custom equality
-struct SlowerView: View {
-    let title: String
-    @State private var isExpanded = false  // Property wrapper makes it non-POD
-    
-    var body: some View {
-        Text(title)
-    }
-}
-```
-
-**Advanced Pattern**: Wrap expensive non-POD views in POD parent views:
-
-```swift
-// POD wrapper for fast diffing
-struct ExpensiveView: View {
-    let value: Int
-    
-    var body: some View {
-        ExpensiveViewInternal(value: value)
-    }
-}
-
-// Internal view with state
-private struct ExpensiveViewInternal: View {
-    let value: Int
-    @State private var item: Item?
-    
-    var body: some View {
-        // Expensive rendering
-    }
-}
-```
-
-**Why**: The POD parent uses fast `memcmp` comparison. Only when `value` changes does the internal view get diffed.
+Extracting a focused child view can clarify dependencies and provide an update boundary. Wrapping a view solely to change internal diffing behavior is an optimization hypothesis: profile the original workload, make the smallest change, and compare body updates and rendering cost with Instruments. Preserve state/environment behavior and use explicit, correct equality only when appropriate.
 
 ### 6. Lazy Loading
 
@@ -239,7 +194,7 @@ struct ItemRow: View {
     let item: Item
     
     var body: some View {
-        // Updates when ANY property of model changes
+        // Observation tracks model.theme because this body reads it
         Text(item.name)
             .foregroundStyle(model.theme.primaryColor)
     }
@@ -257,7 +212,7 @@ struct ItemRow: View {
 }
 ```
 
-**Why**: With `ObservableObject`, any `@Published` property change triggers all observers. With `@Observable`, views update when accessed properties change, but passing entire models still creates broader dependencies than necessary.
+**Why**: With `ObservableObject`, any `@Published` property change triggers all observers. With `@Observable`, unrelated unread properties do not invalidate a view merely because it receives the model. Narrow inputs when they improve ownership or reduce properties actually read by the view.
 
 ### 10. Common Performance Issues
 
@@ -306,30 +261,33 @@ var body: some View {
     }
 }
 
-// GOOD - compute once, store result
+// Cache expensive preparation on each source change, including initial data
 @State private var sortedItems: [Item] = []
 
 var body: some View {
     List(sortedItems) { item in
         Text(item.name)
     }
-    .onChange(of: items) { _, newItems in
+    .onChange(of: items, initial: true) { _, newItems in
         sortedItems = newItems.sorted { $0.name < $1.name }
     }
 }
 
-// Better - compute in model
+// Alternative - keep source mutations behind the cache update boundary
 @Observable
 @MainActor
 final class ItemsViewModel {
-    var items: [Item] = []
+    private(set) var items: [Item] = []
     
-    var sortedItems: [Item] {
-        items.sorted { $0.name < $1.name }
+    private(set) var sortedItems: [Item] = []
+
+    func replaceItems(_ newItems: [Item]) {
+        items = newItems
+        sortedItems = newItems.sorted { $0.name < $1.name }
     }
     
     func loadItems() async {
-        items = await fetchItems()
+        replaceItems(await fetchItems())
     }
 }
 
@@ -371,7 +329,7 @@ var itemCount: Int { items.count }  // Computed property
 - [ ] No object creation in `body`
 - [ ] Heavy computation moved out of `body`
 - [ ] Body kept simple and pure (no side effects)
-- [ ] Derived state computed, not stored
+- [ ] Cheap derived values are computed; expensive caches include initialization and explicit invalidation
 - [ ] Use `Self._printChanges()` to debug unexpected updates
 - [ ] Equatable conformance for expensive views (when appropriate)
-- [ ] Consider POD view wrappers for advanced optimization
+- [ ] Internal diffing hypotheses are profiled; no undocumented body-skipping guarantees

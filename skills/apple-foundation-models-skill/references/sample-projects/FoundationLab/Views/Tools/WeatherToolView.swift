@@ -39,7 +39,7 @@ struct WeatherToolView: View {
                 if !executor.result.isEmpty {
                     ResultDisplay(
                         result: executor.result,
-                        isSuccess: executor.errorMessage == nil
+                        isSuccess: executor.actionVerified
                     )
                 }
             }

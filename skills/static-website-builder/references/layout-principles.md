@@ -1,6 +1,6 @@
 # Static Website Layout Principles
 
-Use this reference when designing, reviewing, or refactoring a text-first static information site.
+Use this reference when the task changes or reviews site architecture, layout, shared components or accessibility. These are defaults for new text-first static information sites; retain established layouts for targeted edits.
 
 ## Site Architecture
 
@@ -179,13 +179,7 @@ Markdown-rendered pages use the same shell and add the parser, sanitizer, and a 
 ```html
 <main id="content" class="content">
   <article class="markdown-page" data-markdown-page data-markdown-src="article.md">
-    <script type="text/markdown" data-markdown-source>
-# Page title
-
-## Section
-
-Markdown content goes here.
-    </script>
+    <script type="application/json" data-markdown-source data-markdown-encoding="json">"# Page title\n\n## Section\n\nMarkdown content goes here.\n"</script>
   </article>
   <div data-site-pager></div>
 </main>
@@ -203,30 +197,8 @@ Markdown content goes here.
 - Keep `aria-current="page"` on the active page link.
 - Update `aria-expanded` on the sidebar toggle and `aria-hidden` on the sidebar.
 - Ensure keyboard focus is visible.
-- Avoid hiding focusable sidebar links from tab order when the mobile drawer is closed.
+- Remove hidden drawer controls from the Tab order when the mobile drawer is closed; restore them on opening. Return focus to the toggle if closing while focus is inside the drawer.
 
 ## Verification
 
-Use browser verification, not just static reading:
-
-- Open every page.
-- Check desktop, tablet if relevant, and mobile.
-- Toggle the sidebar.
-- Scroll long pages on desktop and mobile and confirm the top bar remains fixed with the menu button and page title visible.
-- Collapse and expand both sidebar accordion panels.
-- Confirm a collapsed current-page section panel leaves only its heading and lets the site-page panel move up.
-- Confirm each sidebar panel body scrolls independently when it contains many links.
-- Confirm sticky sidebar panel headings remain visible while their panel bodies scroll.
-- Search for known content and verify results without running a local server.
-- Open Markdown-rendered pages and confirm Markdown headings, lists, links, tables, and fenced code blocks render in the shared layout.
-- Confirm syntax highlighting loads from local vendor assets and colorizes keywords, variables, strings, comments, numbers, and punctuation in HTML code blocks and Markdown fences.
-- Confirm Markdown-rendered pages that need `file://` support do not depend only on fetching a neighboring `.md` file.
-- Inspect the rendered Markdown output after sanitization when the source includes raw HTML.
-- Switch languages and confirm both shared UI text and article content change.
-- Confirm the language switcher appears below the site pages block.
-- Follow previous/next links.
-- Follow the homepage file links.
-- Inspect console errors and warnings.
-- Check long filenames, tables, code blocks, and headings for overflow.
-- Confirm the homepage file index omits shared component files such as `site.css`, `site-init.js`, `site-components.js`, and `vendor/` files.
-- Confirm the site works from local file paths unless it intentionally depends on a server.
+Select applicable checks from [verification.md](verification.md) based on changed behavior and intended opening mode. For Markdown source serialization and synchronization, read [markdown-pages.md](markdown-pages.md).

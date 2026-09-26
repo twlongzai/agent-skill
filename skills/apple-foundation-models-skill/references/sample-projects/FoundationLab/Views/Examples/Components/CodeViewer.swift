@@ -129,10 +129,7 @@ struct CodeDisclosure: View {
 import FoundationModels
 
 let session = LanguageModelSession()
-let response = try await session.generate(
-    with: "Tell me a joke",
-    using: .conversational
-)
+let response = try await session.respond(to: "Tell me a joke")
 """)
 
       CodeViewer(code: """
@@ -144,9 +141,9 @@ struct Book {
     let yearPublished: Int
 }
 
-let book = try await session.generate(
-    prompt: "Suggest a sci-fi book",
-    as: Book.self
+let book = try await session.respond(
+    to: "Suggest a sci-fi book",
+    generating: Book.self
 )
 """)
     }
@@ -160,10 +157,7 @@ let book = try await session.generate(
       CodeDisclosure(code: """
 // Basic chat example
 let session = LanguageModelSession()
-let response = try await session.generate(
-    with: prompt,
-    using: .conversational
-)
+let response = try await session.respond(to: prompt)
 """)
 
       CodeDisclosure(code: """
@@ -177,9 +171,9 @@ struct JournalEntrySummary {
     let themes: [String]
 }
 
-let summary = try await session.generate(
-    prompt: prompt,
-    as: JournalEntrySummary.self
+let summary = try await session.respond(
+    to: prompt,
+    generating: JournalEntrySummary.self
 )
 """)
     }

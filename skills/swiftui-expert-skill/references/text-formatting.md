@@ -49,9 +49,9 @@ Text(price, format: .number.precision(.fractionLength(2)))
 Text(price, format: .number.precision(.significantDigits(3)))
 // Output: "20.0"
 
-// Integer-only
-Text(price, format: .number.precision(.integerLength(1...)))
-// Output: "19"
+// Zero fraction digits rounds according to the format style
+Text(price, format: .number.precision(.fractionLength(0)))
+// Output: "20" in an English locale
 ```
 
 ## Currency Formatting
@@ -195,13 +195,12 @@ let sorted = names.sorted()
 
 ### Basic Attributed Text
 
+`Text + Text` is deprecated in the iOS 26 SDK; it hardcodes segment order and can break localization. Prefer interpolation or AttributedString.
+
 ```swift
-// Using Text concatenation
-Text("Hello ")
-    .foregroundStyle(.primary)
-+ Text("World")
-    .foregroundStyle(.blue)
-    .bold()
+// Interpolate styled Text so localization can reorder sentence parts.
+let name = Text("World").foregroundStyle(.blue).bold()
+Text("Hello \(name)")
 
 // Using AttributedString
 var attributedString = AttributedString("Hello World")
@@ -247,7 +246,7 @@ struct MeasuredText: View {
                 GeometryReader { geometry in
                     Color.clear
                         .onAppear {
-                            textWidth = geometry.size.height
+                            textHeight = geometry.size.height
                         }
                 }
             )
@@ -278,7 +277,7 @@ struct MeasuredText: View {
 - [ ] Use `.dateTime` for date/time formatting
 - [ ] Use `localizedStandardContains()` for user-input search
 - [ ] Use `localizedStandardCompare()` for locale-aware sorting
-- [ ] Use Text concatenation or AttributedString for styled text
+- [ ] Use Text interpolation or AttributedString for styled text; avoid deprecated `Text + Text`
 - [ ] Use markdown syntax for simple text formatting
 - [ ] All formatting respects user's locale and preferences
 

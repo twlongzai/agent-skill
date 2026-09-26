@@ -22,13 +22,13 @@ extension GuidedDynamicSchemaView {
                 DynamicSchemaHelpers.guidedProperty(
                     "phoneNumber",
                     type: String.self,
-                    guides: [.pattern(/\(\d {3}\) \d {3}-\d {4}/)],
+                    guides: [.pattern(/\(\d{3}\) \d{3}-\d{4}/)],
                     description: "US phone number"
                 ),
                 DynamicSchemaHelpers.guidedProperty(
                     "extension",
                     type: String.self,
-                    guides: [.pattern(/x\d {3,4}/)],
+                    guides: [.pattern(/x\d{3,4}/)],
                     description: "Extension",
                     isOptional: true
                 )

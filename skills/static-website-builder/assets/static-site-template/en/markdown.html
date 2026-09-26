@@ -16,30 +16,7 @@
 
     <main id="content" class="content">
       <article class="markdown-page" data-markdown-page data-markdown-src="article.md">
-        <script type="text/markdown" data-markdown-source>
-# Markdown Page
-
-This page renders Markdown inside the shared static-site shell. Use it when prose is easier to maintain in Markdown than hand-authored HTML.
-
-## Markdown Overview
-
-- Keep the page metadata in `site-components.js`.
-- Keep the reader-facing link as `markdown.html`.
-- Keep the raw Markdown file only when readers or editors need source access.
-
-> Markdown output is sanitized before it is inserted into the page.
-
-## Code and Tables
-
-```bash
-python -m http.server 8000
-```
-
-| Source | Reader-facing page |
-| --- | --- |
-| `article.md` | `markdown.html` |
-| inline fallback | `file://` preview |
-        </script>
+        <script type="application/json" data-markdown-source data-markdown-encoding="json">"# Markdown Page\n\nThis page renders Markdown inside the shared static-site shell. Use it when prose is easier to maintain in Markdown than hand-authored HTML.\n\n## Markdown Overview\n\n- Keep the page metadata in `site-components.js`.\n- Keep the reader-facing link as `markdown.html`.\n- Keep the raw Markdown file only when readers or editors need source access.\n\n> Markdown output is sanitized before it is inserted into the page.\n\n## Code and Tables\n\n```bash\npython -m http.server 8000\n```\n\n| Source | Reader-facing page |\n| --- | --- |\n| `article.md` | `markdown.html` |\n| inline fallback | `file://` preview |\n"</script>
       </article>
 
       <div data-site-pager></div>

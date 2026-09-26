@@ -22,8 +22,8 @@ struct CalendarToolView: View {
       errorMessage: executor.errorMessage
     ) {
       VStack(alignment: .leading, spacing: Spacing.large) {
-        if let successMessage = executor.successMessage {
-          SuccessBanner(message: successMessage)
+        if let completionMessage = executor.completionMessage {
+          BannerView(message: completionMessage, type: .info)
         }
 
         ToolInputField(
@@ -41,7 +41,7 @@ struct CalendarToolView: View {
         .disabled(executor.isRunning || query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
         if !executor.result.isEmpty {
-          ResultDisplay(result: executor.result, isSuccess: executor.errorMessage == nil)
+          ResultDisplay(result: executor.result, isSuccess: executor.actionVerified)
         }
       }
     }
@@ -50,8 +50,7 @@ struct CalendarToolView: View {
   private func executeCalendarQuery() {
     Task {
       await executor.executeWithPromptBuilder(
-        tool: CalendarTool(),
-        successMessage: "Calendar query completed successfully!"
+        tool: CalendarTool()
       ) {
         """
 The user's current time zone is \(TimeZone.current.identifier).

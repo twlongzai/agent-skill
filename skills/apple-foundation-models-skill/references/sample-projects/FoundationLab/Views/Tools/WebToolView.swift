@@ -41,7 +41,7 @@ struct WebToolView: View {
         .disabled(executor.isRunning || searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
         if !executor.result.isEmpty {
-          ResultDisplay(result: executor.result, isSuccess: executor.errorMessage == nil)
+          ResultDisplay(result: executor.result, isSuccess: executor.actionVerified)
         }
       }
     }

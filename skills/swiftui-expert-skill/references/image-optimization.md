@@ -85,116 +85,119 @@ AsyncImage(url: imageURL) { phase in
 ### Current Pattern That Could Be Optimized
 
 ```swift
-// Current pattern - decodes full image on main thread
-// Unsafe - force unwrap can crash if imageData is invalid
+// Decoding at the point of view construction can add work to UI updates.
+// Force unwrapping also crashes for invalid image data.
 Image(uiImage: UIImage(data: imageData)!)
     .resizable()
     .aspectRatio(contentMode: .fit)
     .frame(width: 200, height: 200)
 ```
 
-### Suggested Optimization Pattern
+### Suggested Optimization with Explicit Lifecycle
+
+This UIKit example targets iOS 17+. Use the display scale of the actual view environment, include data/size/scale in the task identity, and render invalid data as failure instead of indefinite loading. The actor serializes ImageIO work outside the UI actor. ImageIO’s synchronous operation cannot be interrupted midway; cancellation checks before and after it prevent adopting a cancelled result. No detached task is needed.
 
 ```swift
-// Suggested optimization - decode and downsample off main thread
-struct OptimizedImageView: View {
-    let imageData: Data
+import SwiftUI
+import UIKit
+import ImageIO
+
+struct ImageRequest: Equatable, Sendable {
+    let data: Data
     let targetSize: CGSize
-    @State private var processedImage: UIImage?
-    
-    var body: some View {
-        Group {
-            if let processedImage {
-                Image(uiImage: processedImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-            } else {
-                ProgressView()
-            }
+    let scale: CGFloat
+}
+
+enum ImageProcessingError: Error {
+    case invalidSize
+    case invalidData
+}
+
+actor ImageProcessor {
+    func downsample(_ request: ImageRequest) throws -> CGImage {
+        try Task.checkCancellation()
+        let maxDimension = max(request.targetSize.width, request.targetSize.height) * request.scale
+        guard request.targetSize.width > 0, request.targetSize.height > 0,
+              request.scale > 0, maxDimension.isFinite,
+              maxDimension < CGFloat(Int.max / 2) else {
+            throw ImageProcessingError.invalidSize
         }
-        .task {
-            processedImage = await decodeAndDownsample(imageData, targetSize: targetSize)
+        guard let source = CGImageSourceCreateWithData(request.data as CFData, nil) else {
+            throw ImageProcessingError.invalidData
         }
-    }
-    
-    private func decodeAndDownsample(_ data: Data, targetSize: CGSize) async -> UIImage? {
-        await Task.detached {
-            guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
-                return nil
-            }
-            
-            let options: [CFString: Any] = [
-                kCGImageSourceThumbnailMaxPixelSize: max(targetSize.width, targetSize.height),
-                kCGImageSourceCreateThumbnailFromImageAlways: true,
-                kCGImageSourceCreateThumbnailWithTransform: true
-            ]
-            
-            guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-                return nil
-            }
-            
-            return UIImage(cgImage: cgImage)
-        }.value
+        let options: [CFString: Any] = [
+            kCGImageSourceThumbnailMaxPixelSize: Int(maxDimension.rounded(.up)),
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCache: false,
+            kCGImageSourceShouldCacheImmediately: true
+        ]
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            throw ImageProcessingError.invalidData
+        }
+        try Task.checkCancellation()
+        return image
     }
 }
 
-// Usage
-OptimizedImageView(
-    imageData: imageData,
-    targetSize: CGSize(width: 200, height: 200)
-)
+struct OptimizedImageView: View {
+    private enum Phase {
+        case loading
+        case success(UIImage)
+        case failure
+    }
+
+    let imageData: Data
+    let targetSize: CGSize
+    @Environment(\.displayScale) private var displayScale
+    @State private var phase: Phase = .loading
+    @State private var processor = ImageProcessor()
+
+    private var request: ImageRequest {
+        ImageRequest(data: imageData, targetSize: targetSize, scale: displayScale)
+    }
+
+    var body: some View {
+        // Capture a single request for both identity and processing.
+        let currentRequest = request
+        Group {
+            switch phase {
+            case .loading:
+                ProgressView()
+            case .success(let image):
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            case .failure:
+                Image(systemName: "exclamationmark.triangle")
+                    .accessibilityLabel("Image could not be loaded")
+            }
+        }
+        .task(id: currentRequest) {
+            phase = .loading
+            do {
+                let cgImage = try await processor.downsample(currentRequest)
+                try Task.checkCancellation()
+                phase = .success(UIImage(cgImage: cgImage, scale: currentRequest.scale, orientation: .up))
+            } catch is CancellationError {
+                // Disappeared or input changed: the cancelled task must not overwrite the new phase.
+            } catch {
+                guard !Task.isCancelled else { return }
+                phase = .failure
+            }
+        }
+    }
+}
+
+// Usage: the actual environment displayScale determines the pixel budget.
+OptimizedImageView(imageData: imageData, targetSize: CGSize(width: 200, height: 200))
 ```
 
 ### Reusable Image Downsampling Helper
 
-```swift
-actor ImageProcessor {
-    func downsample(data: Data, to targetSize: CGSize) -> UIImage? {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
-            return nil
-        }
-        
-        let maxDimension = max(targetSize.width, targetSize.height) * UIScreen.main.scale
-        
-        let options: [CFString: Any] = [
-            kCGImageSourceThumbnailMaxPixelSize: maxDimension,
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceShouldCache: false
-        ]
-        
-        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            return nil
-        }
-        
-        return UIImage(cgImage: cgImage)
-    }
-}
+`ImageProcessor` is the reusable helper in the example. Inject/share it when that lifetime fits the feature. It does not cache results. For repeated images, evaluate a bounded cache keyed by image identity and pixel dimensions; account for invalidation and memory cost. A stable asset/version ID can replace full Data comparison in task identity for large payloads, provided it changes whenever the image changes.
 
-// Usage in view
-struct ImageView: View {
-    let imageData: Data
-    let targetSize: CGSize
-    @State private var image: UIImage?
-    
-    private let processor = ImageProcessor()
-    
-    var body: some View {
-        Group {
-            if let image {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-            } else {
-                ProgressView()
-            }
-        }
-        .task {
-            image = await processor.downsample(data: imageData, to: targetSize)
-        }
-    }
-}
-```
+For older targets, use equivalent lifecycle state and cancellation-aware loading with APIs supported by the project. Do not assume that cancelling a view task cancels a separate `Task.detached`; a detached worker needs explicit cancellation ownership.
 
 ### When to Suggest This Optimization
 
@@ -249,7 +252,7 @@ Image(systemName: "folder.badge.plus")
 ```swift
 // Render SwiftUI view to UIImage
 let renderer = ImageRenderer(content: myView)
-renderer.scale = UIScreen.main.scale
+renderer.scale = displayScale  // Read @Environment(\.displayScale) in the owning view
 
 if let uiImage = renderer.uiImage {
     // Use the image (save, share, etc.)
@@ -275,10 +278,10 @@ if let uiImage = renderer.uiImage {
 ## Summary Checklist
 
 - [ ] Use `AsyncImage` with proper phase handling
-- [ ] Handle empty, success, and failure states
+- [ ] Handle loading, success, and failure; input changes restart relevant work and cancelled results are ignored
 - [ ] Consider downsampling for `UIImage(data:)` in performance-sensitive scenarios
 - [ ] Decode and downsample images off the main thread
-- [ ] Use appropriate target sizes for downsampling
+- [ ] Use target pixel dimensions based on the actual display scale
 - [ ] Consider image caching for frequently accessed images
 - [ ] Use SF Symbols with appropriate rendering modes
 - [ ] Use `ImageRenderer` for rendering SwiftUI views to images

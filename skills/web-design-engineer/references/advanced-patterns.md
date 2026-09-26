@@ -1,6 +1,6 @@
 # Advanced Reference: Component Patterns & Code Templates
 
-This file contains advanced patterns and code templates to reference when implementing specific tasks.
+Read only the example needed for the requested artifact. JSX examples assume React is provided by the host; use normal module exports in applications or explicitly ordered scripts in standalone prototypes. Values and content are illustrative, not real product data. Match the project's design system and verify the integrated result.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ This file contains advanced patterns and code templates to reference when implem
 
 ## Responsive Slide Engine
 
-For building fixed-size presentations that auto-fit to any viewport.
+For fixed-size presentations that auto-fit to a viewport. Put the script after the stage, slides, counter, and optional previous/next controls. Use a deck-specific `data-deck-id` on `.stage` when several decks share an origin.
 
 **Key conventions**:
 - Internal arrays use 0-indexed, **but numbers displayed to the user are always 1-indexed**
@@ -38,6 +38,7 @@ For building fixed-size presentations that auto-fit to any viewport.
   .stage {
     width: 1920px;
     height: 1080px;
+    flex-shrink: 0;
     position: relative;
     transform-origin: center center;
   }
@@ -87,22 +88,40 @@ For building fixed-size presentations that auto-fit to any viewport.
   window.addEventListener('resize', scaleStage);
   scaleStage();
 
-  // Slide navigation
-  let current = parseInt(localStorage.getItem('slideIndex') || '0');
+  // Slide navigation; storage may be unavailable in restricted previews.
+  const deckId = document.querySelector('.stage').dataset.deckId || window.location.pathname;
+  const storageKey = `slideIndex:${deckId}`;
+  let savedIndex = 0;
+  try { savedIndex = Number(localStorage.getItem(storageKey) || '0'); } catch {}
+  let current = Number.isInteger(savedIndex) ? savedIndex : 0;
   const slides = document.querySelectorAll('.slide');
   
   function showSlide(n) {
-    current = Math.max(0, Math.min(n, slides.length - 1));
+    if (!slides.length) {
+      document.querySelector('.slide-counter').textContent = '0 / 0';
+      return;
+    }
+    current = Math.max(0, Math.min(Number.isInteger(n) ? n : 0, slides.length - 1));
     slides.forEach((s, i) => s.classList.toggle('active', i === current));
-    localStorage.setItem('slideIndex', current);
+    try { localStorage.setItem(storageKey, String(current)); } catch {}
     // Display 1-indexed to user, store 0-indexed internally
     document.querySelector('.slide-counter').textContent = `${current + 1} / ${slides.length}`;
   }
   
   document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === ' ') showSlide(current + 1);
-    if (e.key === 'ArrowLeft') showSlide(current - 1);
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey ||
+        e.target?.closest('input, textarea, select, button, a, [contenteditable]:not([contenteditable="false"])')) return;
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      showSlide(current + 1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      showSlide(current - 1);
+    }
   });
+
+  document.querySelector('[data-slide-prev]')?.addEventListener('click', () => showSlide(current - 1));
+  document.querySelector('[data-slide-next]')?.addEventListener('click', () => showSlide(current + 1));
   
   showSlide(current);
 </script>
@@ -290,26 +309,46 @@ const TweaksPanel = ({ config, onChange, visible }) => {
 
 ## Animation Timeline Engine
 
+`time` is normalized to 0–1. Pausing excludes the paused interval from elapsed time; `seek(fraction)` works while paused or playing. A duration change preserves current normalized progress. The loop wraps after the endpoint. Respect reduced-motion preferences in the host and provide labeled controls; this example does not add them automatically.
+
 ```jsx
 const useTime = (duration = 5000) => {
+  if (!Number.isFinite(duration) || duration <= 0) {
+    throw new RangeError('Timeline duration must be a positive number of milliseconds');
+  }
   const [time, setTime] = React.useState(0);
   const [playing, setPlaying] = React.useState(true);
   const frameRef = React.useRef();
-  const startRef = React.useRef();
+  const previousFrameRef = React.useRef(null);
+  const progressRef = React.useRef(0);
+
+  const seek = React.useCallback(fraction => {
+    if (!Number.isFinite(fraction)) return;
+    progressRef.current = Math.max(0, Math.min(1, fraction));
+    previousFrameRef.current = null;
+    setTime(progressRef.current);
+  }, []);
   
   React.useEffect(() => {
+    previousFrameRef.current = null;
     if (!playing) return;
     const animate = (timestamp) => {
-      if (!startRef.current) startRef.current = timestamp;
-      const elapsed = (timestamp - startRef.current) % duration;
-      setTime(elapsed / duration); // 0 to 1
+      if (previousFrameRef.current !== null) {
+        const elapsed = Math.max(0, timestamp - previousFrameRef.current);
+        if (elapsed > 0) progressRef.current = (progressRef.current + elapsed / duration) % 1;
+      }
+      previousFrameRef.current = timestamp;
+      setTime(progressRef.current);
       frameRef.current = requestAnimationFrame(animate);
     };
     frameRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frameRef.current);
+    return () => {
+      cancelAnimationFrame(frameRef.current);
+      previousFrameRef.current = null;
+    };
   }, [playing, duration]);
   
-  return { time, playing, setPlaying };
+  return { time, playing, setPlaying, seek };
 };
 
 const Easing = {
@@ -329,6 +368,10 @@ const interpolate = (t, from, to, easing = Easing.easeInOut) => {
 // const { time } = useTime(3000);
 // const opacity = interpolate(time, 0, 1);
 // const x = interpolate(time, -100, 0, Easing.spring);
+// const { time, playing, setPlaying, seek } = useTime(5000);
+// <button onClick={() => setPlaying(!playing)}>{playing ? 'Pause' : 'Play'}</button>
+// <input aria-label="Timeline progress" type="range" min="0" max="1" step="0.001"
+//   value={time} onChange={event => seek(Number(event.target.value))} />
 ```
 
 ---
@@ -376,7 +419,11 @@ const DesignCanvas = ({ options, columns = 3 }) => (
 
 ## Dark Mode Toggle
 
+The provider initializes from the system preference. A consuming component can use `React.useContext(ThemeContext)` and call `setDark(!dark)` from a labeled toggle. Add live system-preference synchronization or persistence only when needed by the brief.
+
 ```jsx
+const ThemeContext = React.createContext(null);
+
 const ThemeProvider = ({ children }) => {
   const [dark, setDark] = React.useState(
     window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -419,6 +466,7 @@ const ThemeProvider = ({ children }) => {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const ctx = document.getElementById('myChart').getContext('2d');
+  // Illustrative sample data: replace with supplied data or label it as a demo.
   new Chart(ctx, {
     type: 'line', // bar, pie, doughnut, radar, etc.
     data: {
@@ -480,7 +528,7 @@ Use oklch to define a harmonious color system:
 
 > ⚠️ **These are experience-based suggestions, not hard rules.**
 > - Always prefer fonts already specified by the brand or design system; only refer to this table when the user hasn't provided any font scheme.
-> - The only hard rule: **Avoid Inter / Roboto / Arial / Fraunces / system-ui — fonts overused by AI-generated content** that instantly signal "this was assembled by AI."
+> - Inter, Roboto, Arial, Fraunces, and system fonts are valid choices. Select by brand fit, readability, language coverage, licensing, and availability; do not replace a working font just to avoid a name.
 > - When choosing fonts, focus on "personality fit" rather than "what's trendy." The table below lists common high-quality choices, not an exhaustive list.
 
 | Use Case | Recommendation | Google Fonts Name |
@@ -501,7 +549,7 @@ Use oklch to define a harmonious color system:
 
 ## Color × Font Pairing Reference
 
-> ⚠️ **These are experience-based pairing suggestions, not hard rules.** When you have **absolutely no design context**, pick one as a starting point — it's far better than starting from Inter + #3b82f6.
+> **These are experience-based pairing suggestions, not hard rules.** When no design context is supplied, use one as a starting point if it fits the brief, then verify readability and language coverage.
 > Once the user provides a brand / design system / reference site, drop this table immediately and follow their materials.
 
 For quickly establishing a visual system with personality:
@@ -515,7 +563,7 @@ For quickly establishing a visual system with personality:
 | Minimal professional | `oklch(0.50 0.15 200)` teal-blue | Outfit + Space Grotesk | Data products, dashboards, B2B |
 | Artisan warmth | `oklch(0.55 0.15 80)` caramel | Caveat (decorative) + Newsreader | Food & beverage, education, creative |
 
-Avoid these combos:
-- ❌ Inter + Roboto + blue buttons (peak AI aesthetic)
-- ❌ Fraunces + purple-pink gradients (overused)
-- ❌ More than three font families (visual chaos)
+Review a pairing for purpose and readability:
+- Similar heading and body faces should still produce a clear hierarchy through size, weight, and spacing.
+- Gradients and accent colors should preserve contrast and serve the supplied brand or brief.
+- Additional font families should have a defined role; remove redundant families when they add complexity without helping the reader.

@@ -619,6 +619,15 @@
       return "";
     }
 
+    if (source.getAttribute("data-markdown-encoding") === "json") {
+      const value = JSON.parse(source.textContent);
+      if (typeof value !== "string") {
+        throw new Error("Inline Markdown JSON must contain a string.");
+      }
+      return value;
+    }
+
+    // Existing plain-text shells still work; new shells use lossless JSON.
     return source.textContent.replace(/^\n/, "").trimEnd();
   }
 
@@ -635,7 +644,7 @@
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-        return response.text();
+        return await response.text();
       } catch (error) {
         if (fallbackSource) {
           return fallbackSource;
@@ -733,10 +742,9 @@
       return;
     }
 
-    const fallbackSource = inlineMarkdownSource(container);
-    renderMarkdownStatus(container, strings.markdownLoading);
-
     try {
+      const fallbackSource = inlineMarkdownSource(container);
+      renderMarkdownStatus(container, strings.markdownLoading);
       const source = await markdownSource(container, strings, fallbackSource);
       const rendered = window.marked.parse(source, { gfm: true, breaks: false });
       const html = await Promise.resolve(rendered);
@@ -834,6 +842,10 @@
 
   function applySidebarState(sidebar, toggle, value) {
     const isVisible = value === "visible";
+
+    if (!isVisible && sidebar.contains(document.activeElement)) {
+      toggle.focus();
+    }
 
     root.classList.toggle("sidebar-visible", isVisible);
     root.classList.toggle("sidebar-hidden", !isVisible);

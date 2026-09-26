@@ -22,8 +22,8 @@ struct ContactsToolView: View {
       errorMessage: executor.errorMessage
     ) {
       VStack(alignment: .leading, spacing: Spacing.large) {
-        if let successMessage = executor.successMessage {
-          SuccessBanner(message: successMessage)
+        if let completionMessage = executor.completionMessage {
+          BannerView(message: completionMessage, type: .info)
         }
 
         ToolInputField(
@@ -41,7 +41,7 @@ struct ContactsToolView: View {
         .disabled(executor.isRunning || searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
         if !executor.result.isEmpty {
-          ResultDisplay(result: executor.result, isSuccess: executor.errorMessage == nil)
+          ResultDisplay(result: executor.result, isSuccess: executor.actionVerified)
         }
       }
     }
@@ -51,9 +51,7 @@ struct ContactsToolView: View {
     Task {
       await executor.execute(
         tool: ContactsTool(),
-        prompt: "Find contacts named \(searchQuery)",
-        successMessage: "Contact search completed successfully!",
-        clearForm: { searchQuery = "" }
+        prompt: "Find contacts named \(searchQuery)"
       )
     }
   }

@@ -787,6 +787,24 @@ html.sidebar-hidden .page-wrapper { margin-left: 0; }
 html.sidebar-hidden .menu-bar { left: 0; }
 
 @media (max-width: 900px) {
+  .sidebar-toggle,
+  .sidebar-panel-heading,
+  .site-search-input,
+  .site-nav a,
+  .language-switcher a,
+  .sidebar-brand,
+  .site-search-result {
+    min-height: 44px;
+  }
+
+  .sidebar-toggle { width: 44px; height: 44px; }
+
+  .site-nav a,
+  .language-switcher a {
+    display: flex;
+    align-items: center;
+  }
+
   .layout-sidebar {
     visibility: hidden;
     transform: translateX(-100%);

@@ -25,7 +25,7 @@ extension FormBuilderSchemaView {
                 DynamicSchemaHelpers.guidedProperty(
                     "email",
                     type: String.self,
-                    guides: [.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z] {2,}$/)],
+                    guides: [.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)],
                     description: "Email address"
                 )
             )
@@ -36,7 +36,7 @@ extension FormBuilderSchemaView {
                 DynamicSchemaHelpers.guidedProperty(
                     "phone",
                     type: String.self,
-                    guides: [.pattern(/\(\d {3}\) \d {3}-\d {4}/)],
+                    guides: [.pattern(/\(\d{3}\) \d{3}-\d{4}/)],
                     description: "Phone number (US format)",
                     isOptional: true
                 )
@@ -140,13 +140,13 @@ extension FormBuilderSchemaView {
                 DynamicSchemaHelpers.guidedProperty(
                     "email",
                     type: String.self,
-                    guides: [.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z] {2,}$/)],
+                    guides: [.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)],
                     description: "Email address"
                 ),
                 DynamicSchemaHelpers.guidedProperty(
                     "phone",
                     type: String.self,
-                    guides: [.pattern(/\(\d {3}\) \d {3}-\d {4}/)],
+                    guides: [.pattern(/\(\d{3}\) \d{3}-\d{4}/)],
                     description: "Phone number",
                     isOptional: true
                 )

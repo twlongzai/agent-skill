@@ -38,7 +38,7 @@ struct MusicToolView: View {
         .disabled(executor.isRunning || query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
         if !executor.result.isEmpty {
-          ResultDisplay(result: executor.result, isSuccess: executor.errorMessage == nil)
+          ResultDisplay(result: executor.result, isSuccess: executor.actionVerified)
         }
       }
     }

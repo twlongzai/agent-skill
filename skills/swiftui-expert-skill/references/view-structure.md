@@ -76,17 +76,17 @@ struct ParentView: View {
 
 ### The Solution: Separate Structs
 
-Extract to separate `struct` views. SwiftUI can skip their `body` when inputs don't change:
+Extract to separate `struct` views. Focused child views give SwiftUI a separate update boundary; actual body evaluation depends on their inputs and tracked state/environment:
 
 ```swift
-// GOOD - ComplexSection body SKIPPED when its inputs don't change
+// GOOD - separate responsibilities and dependencies
 struct ParentView: View {
     @State private var count = 0
 
     var body: some View {
         VStack {
             Button("Tap: \(count)") { count += 1 }
-            ComplexSection()  // Body skipped during re-evaluation
+            ComplexSection()  // A separate view update boundary
         }
     }
 }
@@ -107,9 +107,9 @@ struct ComplexSection: View {
 
 ### Why This Works
 
-1. SwiftUI compares the `ComplexSection` struct (which has no properties)
-2. Since nothing changed, SwiftUI skips calling `ComplexSection.body`
-3. The complex view code never executes unnecessarily
+1. A separate view makes its inputs and responsibilities explicit.
+2. SwiftUI tracks that view’s dependencies, including state and environment.
+3. Extraction can reduce unrelated work, but exact body skipping and comparison strategy are not API guarantees. Profile performance-sensitive cases.
 
 ## When @ViewBuilder Functions Are Acceptable
 
@@ -158,22 +158,22 @@ Extract complex views into separate subviews when:
 
 ### Avoid Closure-Based Content
 
-Closures can't be compared, causing unnecessary re-renders:
+Stored builder closures can capture dependencies that complicate view comparison. If content does not need to be rebuilt later, storing the built `Content` often makes the container simpler:
 
 ```swift
-// BAD - closure prevents SwiftUI from skipping updates
+// A closure-based API can be useful, but it rebuilds content when invoked
 struct MyContainer<Content: View>: View {
     let content: () -> Content
 
     var body: some View {
         VStack {
             Text("Header")
-            content()  // Always called, can't compare closures
+            content()  // Invokes the builder when this body evaluates
         }
     }
 }
 
-// Usage forces re-render on every parent update
+// Use a stored Content value when deferred construction is unnecessary
 MyContainer {
     ExpensiveView()
 }
@@ -189,7 +189,7 @@ struct MyContainer<Content: View>: View {
     var body: some View {
         VStack {
             Text("Header")
-            content  // SwiftUI can compare and skip if unchanged
+            content  // The built content is an explicit view input
         }
     }
 }

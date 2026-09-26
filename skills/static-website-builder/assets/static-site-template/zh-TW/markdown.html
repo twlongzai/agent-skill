@@ -16,30 +16,7 @@
 
     <main id="content" class="content">
       <article class="markdown-page" data-markdown-page data-markdown-src="article.md">
-        <script type="text/markdown" data-markdown-source>
-# Markdown 頁面
-
-這個頁面會在共享靜態網站 shell 裡渲染 Markdown。當 prose 用 Markdown 比手寫 HTML 更容易維護時，可以使用這個頁面型態。
-
-## Markdown 概覽
-
-- 在 `site-components.js` 維護頁面 metadata。
-- 讀者看到的連結仍使用 `markdown.html`。
-- 只有在讀者或編輯者需要原始內容時，才把 raw Markdown file 列出來。
-
-> Markdown output 會先經過 sanitizer，再插入頁面。
-
-## 程式碼與表格
-
-```bash
-python -m http.server 8000
-```
-
-| Source | 讀者頁面 |
-| --- | --- |
-| `article.md` | `markdown.html` |
-| inline fallback | `file://` preview |
-        </script>
+        <script type="application/json" data-markdown-source data-markdown-encoding="json">"# Markdown 頁面\n\n這個頁面會在共享靜態網站 shell 裡渲染 Markdown。當 prose 用 Markdown 比手寫 HTML 更容易維護時，可以使用這個頁面型態。\n\n## Markdown 概覽\n\n- 在 `site-components.js` 維護頁面 metadata。\n- 讀者看到的連結仍使用 `markdown.html`。\n- 只有在讀者或編輯者需要原始內容時，才把 raw Markdown file 列出來。\n\n> Markdown output 會先經過 sanitizer，再插入頁面。\n\n## 程式碼與表格\n\n```bash\npython -m http.server 8000\n```\n\n| Source | 讀者頁面 |\n| --- | --- |\n| `article.md` | `markdown.html` |\n| inline fallback | `file://` preview |\n"</script>
       </article>
 
       <div data-site-pager></div>

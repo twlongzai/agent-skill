@@ -2,13 +2,23 @@
 
 ## Overview
 
-This reference covers modern SwiftUI API usage patterns and deprecated API replacements. Always use the latest APIs to ensure forward compatibility and access to new features.
+This reference distinguishes API migrations from design preferences. Use APIs supported by the project’s target platforms and minimum deployment versions; preserve compatible code when migration is outside the request. A preferred alternative does not imply that the existing API is deprecated.
+
+| API / pattern | Relevant iOS / macOS minimum | Guidance |
+|---|---|---|
+| `foregroundStyle`, materials | iOS 15 / macOS 12 | Prefer when supported; check the particular overload |
+| `NavigationStack`, `scrollIndicators`, `ImageRenderer` | iOS 16 / macOS 13 | Retain supported earlier navigation/rendering alternatives |
+| Observation, two-/no-parameter `onChange`, `.rect(cornerRadius:)`, `containerRelativeFrame`, `visualEffect` | iOS 17 / macOS 14 | Use compatibility alternatives for earlier targets |
+| `Tab` | iOS 18 / macOS 15 | Use `tabItem()` for earlier supported OS versions |
+| Liquid Glass | iOS/macOS/tvOS/watchOS 26; unavailable on visionOS | See the dedicated reference only when relevant |
+
+Check Apple symbol documentation or the installed SDK for other platforms and exact overloads. `Button` versus a gesture, `bold` versus `fontWeight`, and geometry choices are semantic/design decisions rather than blanket deprecations.
 
 ## Styling and Appearance
 
 ### foregroundStyle() vs foregroundColor()
 
-**Always use `foregroundStyle()` instead of `foregroundColor()`.**
+Prefer `foregroundStyle()` when the target and required overload support it.
 
 ```swift
 // Modern (Correct)
@@ -27,7 +37,7 @@ Text("Hello")
 
 ### clipShape() vs cornerRadius()
 
-**Always use `clipShape(.rect(cornerRadius:))` instead of `cornerRadius()`.**
+For modern targets, prefer `clipShape(.rect(cornerRadius:))`; use `clipShape(RoundedRectangle(cornerRadius:))` when supporting earlier versions.
 
 ```swift
 // Modern (Correct)
@@ -68,7 +78,7 @@ Text("Semibold")
 
 ### NavigationStack vs NavigationView
 
-**Always use `NavigationStack` instead of `NavigationView`.**
+Prefer `NavigationStack` on iOS 16+/macOS 13+. Keep a compatible navigation implementation for earlier supported targets.
 
 ```swift
 // Modern (Correct)
@@ -191,7 +201,7 @@ TabView {
 
 ### Button vs onTapGesture()
 
-**Never use `onTapGesture()` unless you specifically need tap location or tap count. Always use `Button` otherwise.**
+Use `Button` for actions with control semantics, accessibility, keyboard activation, and feedback. Use gestures for interaction with view content, such as tap location/count or gesture composition.
 
 ```swift
 // Correct - standard tap action
@@ -218,11 +228,11 @@ Text("Tap me")
     }
 ```
 
-**Why**: `Button` provides proper accessibility, visual feedback, and semantic meaning. Use `onTapGesture()` only when you need its specific features.
+**Why**: `Button` provides proper accessibility, visual feedback, and semantic meaning. Choose a gesture when its interaction semantics are required.
 
 ### Button with Images
 
-**Always specify text alongside images in buttons for accessibility.**
+Give image-only buttons a meaningful accessible name. A title/`Label` (optionally with `.labelStyle(.iconOnly)`) or an explicit `.accessibilityLabel` can provide it.
 
 ```swift
 // Correct - includes text label
@@ -243,6 +253,7 @@ Button {
 } label: {
     Image(systemName: "plus")
 }
+// Add .accessibilityLabel("Add Item") to make this image-only control accessible.
 ```
 
 ## Layout and Sizing
@@ -385,7 +396,7 @@ Button("Action") { }
 
 - [ ] Use `foregroundStyle()` instead of `foregroundColor()`
 - [ ] Use `clipShape(.rect(cornerRadius:))` instead of `cornerRadius()`
-- [ ] Use `Tab` API instead of `tabItem()`
+- [ ] Tab/navigation/API choices match supported platform versions
 - [ ] Use `Button` instead of `onTapGesture()` (unless need location/count)
 - [ ] Use `NavigationStack` instead of `NavigationView`
 - [ ] Use `navigationDestination(for:)` for type-safe navigation
@@ -396,5 +407,5 @@ Button("Action") { }
 - [ ] Avoid hard-coded padding/spacing unless requested
 - [ ] Avoid UIKit colors in SwiftUI
 - [ ] Use static member lookup (`.blue` vs `Color.blue`)
-- [ ] Include text labels with button images
+- [ ] Image-only buttons have meaningful accessible names
 - [ ] Use `bold()` instead of `fontWeight(.bold)`

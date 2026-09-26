@@ -21,8 +21,8 @@ struct LocationToolView: View {
       errorMessage: executor.errorMessage
     ) {
       VStack(alignment: .leading, spacing: Spacing.large) {
-        if let successMessage = executor.successMessage {
-          SuccessBanner(message: successMessage)
+        if let completionMessage = executor.completionMessage {
+          BannerView(message: completionMessage, type: .info)
         }
 
         ToolExecuteButton(
@@ -33,7 +33,7 @@ struct LocationToolView: View {
         )
 
         if !executor.result.isEmpty {
-          ResultDisplay(result: executor.result, isSuccess: executor.errorMessage == nil)
+          ResultDisplay(result: executor.result, isSuccess: executor.actionVerified)
         }
       }
     }
@@ -43,8 +43,7 @@ struct LocationToolView: View {
     Task {
       await executor.execute(
         tool: LocationTool(),
-        prompt: "What's my current location?",
-        successMessage: "Location retrieved successfully!"
+        prompt: "What's my current location?"
       )
     }
   }
