@@ -58,7 +58,7 @@ Get-ChildItem (Join-Path $repo "skills") -Directory | ForEach-Object {
 What skills are available?
 ```
 
-也可以輸入 `/`，確認五個 skill 名稱出現在選單。Claude Code 會監看既有 skill 目錄中的 `SKILL.md` 變更；如果 session 啟動時 discovery 目錄尚不存在，建立後請重新啟動 Claude Code。
+也可以輸入 `/`，確認各個 skill 名稱出現在選單。Claude Code 會監看既有 skill 目錄中的 `SKILL.md` 變更；如果 session 啟動時 discovery 目錄尚不存在，建立後請重新啟動 Claude Code。
 
 若使用 Claude Agent SDK 且自行指定 `settingSources`／`setting_sources`，必須包含 `"user"` 或 `"project"` 才會載入 filesystem skills；`skills: "all"` 可啟用所有已發現的 skills。
 
@@ -92,6 +92,7 @@ Claude 會依工作內容與 `description` 自動觸發，也可以在 Claude Co
 | Skill | 明確指定範例 |
 | --- | --- |
 | `apple-foundation-models-skill-legacy` | `/apple-foundation-models-skill-legacy review this Foundation Models session design for iOS 26 / macOS 26` |
+| `macos-gcp-incident-response` | `/macos-gcp-incident-response investigate this authorized Mac and related Google Cloud project, preserve evidence, and propose scoped response actions.` |
 | `static-website-builder` | `/static-website-builder build a bilingual documentation site from these Markdown files` |
 | `swiftui-expert-skill` | `/swiftui-expert-skill review this view's state ownership and navigation` |
 | `web-design-engineer` | `/web-design-engineer improve this dashboard's visual hierarchy and interactions` |

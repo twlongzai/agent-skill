@@ -33,7 +33,7 @@ cd /path/to/your-project
 gemini skills install "$REPO/skills" --scope workspace
 ```
 
-Gemini CLI 會列出找到的五個 skills 與安裝目的地；檢視後再同意。支援 `skills link` 的新版 CLI 也可用下列方式直接追蹤本機來源更新：
+Gemini CLI 會列出找到的各個 skills 與安裝目的地；檢視後再同意。支援 `skills link` 的新版 CLI 也可用下列方式直接追蹤本機來源更新：
 
 ```bash
 gemini skills link "$REPO/skills" --scope user
@@ -85,7 +85,7 @@ mkdir -p "$HOME/.gemini/config/skills"
 cp -R "$REPO"/skills/* "$HOME/.gemini/config/skills/"
 ```
 
-在 Antigravity 中開啟 `/skills`，確認五個 skills 已載入。若使用 workspace skills，請確保目前開啟的 workspace root 正是包含 `.agents/skills/` 的目錄。
+在 Antigravity 中開啟 `/skills`，確認各個 skills 已載入。若使用 workspace skills，請確保目前開啟的 workspace root 正是包含 `.agents/skills/` 的目錄。
 
 Windows 可用 PowerShell 將 `$target` 分別設為專案的 `.agents\skills` 或 `$HOME\.gemini\config\skills` 後複製：
 
@@ -105,6 +105,7 @@ Gemini／Antigravity 會先讀取 skill 的名稱與 description，相關時再�
 | Skill | 明確指定範例 |
 | --- | --- |
 | `apple-foundation-models-skill-legacy` | `Use the apple-foundation-models-skill-legacy to review this tool-calling session for iOS 26 / macOS 26.` |
+| `macos-gcp-incident-response` | `Use the macos-gcp-incident-response skill to investigate this authorized Mac and related Google Cloud project, preserve evidence, and propose scoped response actions.` |
 | `static-website-builder` | `Use the static-website-builder skill to turn these notes into a multilingual docs site.` |
 | `swiftui-expert-skill` | `Use the swiftui-expert-skill to refactor state ownership in this feature.` |
 | `web-design-engineer` | `Use the web-design-engineer skill to redesign this interactive dashboard.` |

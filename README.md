@@ -26,6 +26,7 @@ The shared `name` and `description` frontmatter is intentionally portable. Files
 | Skill | Purpose |
 | --- | --- |
 | `skills/apple-foundation-models-skill-legacy` | Helps build, review, and refactor legacy Apple Foundation Models features in SwiftUI apps for iOS 26 / macOS 26 or earlier only. |
+| `skills/macos-gcp-incident-response` | Guides authorized macOS malware investigations and related Google Cloud credential or billing abuse, with evidence preservation and approval-gated response. |
 | `skills/static-website-builder` | Helps build and improve text-first static sites with plain HTML, CSS, and JavaScript, including multilingual navigation, local Markdown rendering, and a reusable template. |
 | `skills/swiftui-expert-skill` | Guides SwiftUI implementation, review, architecture, state management, performance, and modern API usage. |
 | `skills/web-design-engineer` | Guides visual and interactive front-end work, including pages, prototypes, dashboards, slide decks, and UI mockups. |
@@ -34,6 +35,8 @@ The shared `name` and `description` frontmatter is intentionally portable. Files
 The Apple Foundation Models skill is limited to iOS 26 / macOS 26 or earlier. This is a limit on the skill's guidance; each API still has its own minimum OS requirement. For new features in iOS 27 / macOS 27, refer to [What's new in the Foundation Models framework — WWDC26 session 241](https://developer.apple.com/videos/play/wwdc2026/241/).
 
 Choose by the requested work:
+
+- Use `macos-gcp-incident-response` for explicitly authorized macOS investigations and related Google Cloud credential or billing abuse. The skill does not itself authorize access, containment, or communications.
 
 - Use `static-website-builder` for text-first static reading sites and their navigation, local Markdown, or language structure; use `web-design-engineer` for visual and interactive web design. Existing project tooling and scope take precedence over a starter template.
 - Use `apple-foundation-models-skill-legacy` for Foundation Models integration targeting iOS 26 / macOS 26 or earlier; add `swiftui-expert-skill` when the work also needs SwiftUI-specific state, layout, navigation, or rendering guidance.
@@ -75,6 +78,7 @@ Some skills started from public work and were adapted for this repository:
 These skill instructions were created for this repository; bundled third-party examples and libraries retain their own attribution:
 
 - `skills/apple-foundation-models-skill-legacy`
+- `skills/macos-gcp-incident-response`
 - `skills/static-website-builder`
 - `skills/write-like-human`
 
